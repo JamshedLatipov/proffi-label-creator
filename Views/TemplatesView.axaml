@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             x:Class="LabelStudio.Views.TemplatesView"
+             x:DataType="vm:TemplatesViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="32">
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,32">
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                    <TextBlock Text="Projects" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                    <TextBlock Text="&#xe5cc;" FontFamily="{StaticResource MaterialIcons}" FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Standard Templates" FontSize="12" FontWeight="Medium" Foreground="{StaticResource OnSurface}"/>
+                </StackPanel>
+                <TextBlock Text="Label Templates" FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold" FontSize="32" Foreground="{StaticResource OnSurface}"/>
+                <TextBlock Text="Manage and deploy technical drafting specifications." FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <Border Grid.Column="1" Background="{StaticResource SurfaceContainerLowest}" BorderBrush="#e2e8f0" BorderThickness="1" CornerRadius="8" Padding="12,8" VerticalAlignment="Bottom">
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="FILTER BY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox SelectedIndex="0" Background="Transparent" BorderThickness="0" FontSize="12" FontWeight="Medium" Foreground="{StaticResource OnSurface}">
+                        <ComboBoxItem>All Sizes</ComboBoxItem>
+                        <ComboBoxItem>58x40 mm</ComboBoxItem>
+                        <ComboBoxItem>100x150 mm</ComboBoxItem>
+                    </ComboBox>
+                    <ComboBox SelectedIndex="0" Background="Transparent" BorderThickness="0" FontSize="12" FontWeight="Medium" Foreground="{StaticResource OnSurface}">
+                        <ComboBoxItem>Category: Logistics</ComboBoxItem>
+                        <ComboBoxItem>Category: Inventory</ComboBoxItem>
+                        <ComboBoxItem>Category: Compliance</ComboBoxItem>
+                    </ComboBox>
+                    <Button Background="Transparent" Padding="4">
+                        <TextBlock Text="&#xe916;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="18"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Grid -->
+        <ScrollViewer Grid.Row="2">
+            <ItemsControl ItemsSource="{Binding Templates}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.DataTemplates>
+                    <DataTemplate x:DataType="vm:TemplateItemViewModel">
+                        <Border Background="{StaticResource SurfaceContainerLowest}" BorderBrush="Transparent" BorderThickness="1" CornerRadius="12" Width="280" Margin="0,0,24,24">
+                            <Grid RowDefinitions="Auto,*">
+                                <!-- Mockup area -->
+                                <Border Grid.Row="0" Height="210" Background="{StaticResource SurfaceContainerLow}" CornerRadius="12,12,0,0" Margin="4">
+                                    <Border Background="White" Width="140" Height="100" CornerRadius="4" BoxShadow="0 1 2 0 #1A000000"/>
+                                </Border>
+
+                                <StackPanel Grid.Row="1" Margin="20">
+                                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                                        <TextBlock Grid.Column="0" Text="{Binding Title}" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource OnSurface}" TextTrimming="CharacterEllipsis"/>
+                                        <Border Grid.Column="1" Background="{StaticResource SurfaceContainerHigh}" CornerRadius="4" Padding="8,2">
+                                            <TextBlock Text="{Binding Category}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" />
+                                        </Border>
+                                    </Grid>
+
+                                    <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,0,0,24" TextWrapping="Wrap"/>
+
+                                    <Grid ColumnDefinitions="*,Auto" Margin="0,24,0,0" VerticalAlignment="Bottom">
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="&#xe41c;" FontFamily="{StaticResource MaterialIcons}" FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Size}" FontSize="12" FontWeight="Medium" Foreground="{StaticResource OnSurface}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                            <Button Background="Transparent" Padding="6" CornerRadius="4">
+                                                <TextBlock Text="&#xe3c9;" FontFamily="{StaticResource MaterialIcons}" FontSize="18" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                            </Button>
+                                            <Button Background="Transparent" Padding="6" CornerRadius="4">
+                                                <TextBlock Text="&#xe14d;" FontFamily="{StaticResource MaterialIcons}" FontSize="18" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                            </Button>
+                                            <Button Background="Transparent" Padding="6" CornerRadius="4">
+                                                <TextBlock Text="&#xe872;" FontFamily="{StaticResource MaterialIcons}" FontSize="18" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.DataTemplates>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+
+</UserControl>

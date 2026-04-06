@@ -1,0 +1,240 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="LabelStudio.Views.EditorView"
+             x:DataType="vm:EditorViewModel">
+
+    <Grid ColumnDefinitions="288,*,320">
+        <!-- Elements Library (Left Panel) -->
+        <Border Grid.Column="0" Background="{StaticResource SurfaceContainerHigh}" BorderBrush="#0c000000" BorderThickness="0,0,1,0" Padding="16">
+            <ScrollViewer>
+                <StackPanel Spacing="24">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="ELEMENTS LIBRARY" FontSize="11" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                        <StackPanel Spacing="12">
+                            <Border Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Padding="12">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="&#xe264;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource Primary}" FontSize="24"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Static Text" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Fixed labels &amp; notes" FontSize="10" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Padding="12">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="&#xf20e;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource Tertiary}" FontSize="24"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="ERP Dynamic Field" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Variables from source" FontSize="10" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Padding="12">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="&#xe85c;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurface}" FontSize="24"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="EAN-13 Barcode" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Retail standard code" FontSize="10" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Padding="12">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="&#xe00a;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurface}" FontSize="24"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="QR Code" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Mobile interaction" FontSize="10" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="QUICK SHAPES" FontSize="11" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="*,*" Width="140" HorizontalAlignment="Left">
+                            <Border Grid.Row="0" Grid.Column="0" Width="64" Height="64" Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Margin="0,0,8,8">
+                                <TextBlock Text="&#xeb54;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="1" Width="64" Height="64" Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Margin="0,0,0,8">
+                                <TextBlock Text="&#xef4a;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="0" Width="64" Height="64" Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Margin="0,0,8,0">
+                                <TextBlock Text="&#xea08;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" Width="64" Height="64" Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8">
+                                <TextBlock Text="&#xe835;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Workspace Canvas -->
+        <Border Grid.Column="1" Background="{StaticResource SurfaceContainer}">
+            <Grid>
+                <!-- Central Canvas Area -->
+                <Border Width="600" Height="400" Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" Padding="24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid RowDefinitions="Auto,*,Auto">
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                            <Border Grid.Column="0" BorderBrush="{StaticResource Primary}" BorderThickness="2" Padding="8" HorizontalAlignment="Left">
+                                <TextBlock Text="ORGANIC COFFEE" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="24"/>
+                            </Border>
+                            <Border Grid.Column="1" Width="64" Height="64" Background="{StaticResource SurfaceContainerHigh}" CornerRadius="4">
+                                <TextBlock Text="&#xe3f4;" FontFamily="{StaticResource MaterialIcons}" FontSize="36" Foreground="{StaticResource OutlineVariant}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+
+                        <StackPanel Grid.Row="1" Margin="0,32,0,0">
+                            <TextBlock Text="BATCH NUMBER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1" Margin="0,0,0,4"/>
+                            <Border Background="#e6f0fa" BorderBrush="#ccdbf2" BorderThickness="1" CornerRadius="4" Padding="8,4" HorizontalAlignment="Left">
+                                <TextBlock Text="{}{ERP.BatchID}" FontFamily="Consolas,Monospace" FontSize="14" Foreground="{StaticResource Primary}"/>
+                            </Border>
+                        </StackPanel>
+
+                        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" VerticalAlignment="Bottom">
+                            <StackPanel Grid.Column="0" Spacing="8">
+                                <TextBlock Text="Produced by Artisan Roasters, LLC. Keep in a cool, dry place." FontSize="10" Foreground="{StaticResource OnSurfaceVariant}" TextWrapping="Wrap" MaxWidth="120"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="&#xe760;" FontFamily="{StaticResource MaterialIcons}" FontSize="18"/>
+                                    <TextBlock Text="&#xea35;" FontFamily="{StaticResource MaterialIcons}" FontSize="18"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4" HorizontalAlignment="Center">
+                                <Border Width="128" Height="64" Background="{StaticResource OnSurface}" Padding="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="2">
+                                        <Border Width="4" Background="White"/>
+                                        <Border Width="2" Background="White"/>
+                                        <Border Width="8" Background="White"/>
+                                        <Border Width="4" Background="White"/>
+                                        <Border Width="12" Background="White"/>
+                                        <Border Width="4" Background="White"/>
+                                        <Border Width="2" Background="White"/>
+                                        <Border Width="4" Background="White"/>
+                                        <Border Width="8" Background="White"/>
+                                        <Border Width="4" Background="White"/>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="501234567890" FontFamily="Consolas,Monospace" FontSize="8" LetterSpacing="4" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Floating Action -->
+                <Button Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}" Padding="24,12" CornerRadius="24" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="32">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="&#xe8f4;" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center"/>
+                        <TextBlock Text="Preview with Data" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Properties Panel (Right Panel) -->
+        <Border Grid.Column="2" Background="{StaticResource SurfaceContainerHigh}" BorderBrush="#0c000000" BorderThickness="1,0,0,0">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <Border Grid.Row="0" BorderBrush="#0c000000" BorderThickness="0,0,0,1" Padding="16">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="PROPERTIES" FontSize="11" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                        <Border Grid.Column="1" Background="{StaticResource PrimaryContainer}" CornerRadius="4" Padding="8,2">
+                            <TextBlock Text="Text Element" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnPrimaryContainer}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <ScrollViewer Grid.Row="1" Padding="24">
+                    <StackPanel Spacing="24">
+                        <StackPanel Spacing="16">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="Geometry" FontSize="11" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Grid.Column="1" Text="&#xe897;" FontFamily="{StaticResource MaterialIcons}" FontSize="14" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="*,*" Margin="0,-8">
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,6,8">
+                                    <TextBlock Text="X POS (mm)" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" Margin="4,0,0,4"/>
+                                    <TextBox Text="24.50" FontFamily="Consolas,Monospace" FontSize="12" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="6,0,0,8">
+                                    <TextBlock Text="Y POS (mm)" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" Margin="4,0,0,4"/>
+                                    <TextBox Text="18.25" FontFamily="Consolas,Monospace" FontSize="12" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,6,0">
+                                    <TextBlock Text="WIDTH" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" Margin="4,0,0,4"/>
+                                    <TextBox Text="120.00" FontFamily="Consolas,Monospace" FontSize="12" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="6,0,0,0">
+                                    <TextBlock Text="HEIGHT" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" Margin="4,0,0,4"/>
+                                    <TextBox Text="32.00" FontFamily="Consolas,Monospace" FontSize="12" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <Border BorderBrush="#0c000000" BorderThickness="0,1,0,0" Padding="0,24,0,0">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Typography" FontSize="11" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <ComboBox SelectedIndex="0" HorizontalAlignment="Stretch" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6" FontSize="12">
+                                    <ComboBoxItem>Manrope Bold</ComboBoxItem>
+                                    <ComboBoxItem>Inter Medium</ComboBoxItem>
+                                    <ComboBoxItem>Courier Prime</ComboBoxItem>
+                                </ComboBox>
+                                <Grid ColumnDefinitions="*,80">
+                                    <Border Grid.Column="0" Background="{StaticResource SurfaceContainerLowest}" BorderBrush="#0c000000" BorderThickness="1" CornerRadius="6" Margin="0,0,8,0">
+                                        <Grid ColumnDefinitions="*,*,*">
+                                            <Button Grid.Column="0" Background="#e6f0fa" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                                                <TextBlock Text="&#xe236;" FontFamily="{StaticResource MaterialIcons}" FontSize="14" Foreground="{StaticResource Primary}"/>
+                                            </Button>
+                                            <Button Grid.Column="1" Background="Transparent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                                                <TextBlock Text="&#xe234;" FontFamily="{StaticResource MaterialIcons}" FontSize="14"/>
+                                            </Button>
+                                            <Button Grid.Column="2" Background="Transparent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                                                <TextBlock Text="&#xe237;" FontFamily="{StaticResource MaterialIcons}" FontSize="14"/>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                    <TextBox Grid.Column="1" Text="24" FontFamily="Consolas,Monospace" FontSize="12" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border BorderBrush="#0c000000" BorderThickness="0,1,0,0" Padding="0,24,0,0">
+                            <StackPanel Spacing="16">
+                                <Grid ColumnDefinitions="Auto,Auto">
+                                    <TextBlock Grid.Column="0" Text="Data Source" FontSize="11" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,0,8,0"/>
+                                    <Border Grid.Column="1" Background="{StaticResource TertiaryContainer}" CornerRadius="2" Padding="4,2">
+                                        <TextBlock Text="ERP-LINKED" FontSize="8" FontWeight="Bold" Foreground="{StaticResource OnTertiaryContainer}"/>
+                                    </Border>
+                                </Grid>
+                                <Border Background="{StaticResource SurfaceContainerLowest}" BorderBrush="{StaticResource Primary}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                    <StackPanel>
+                                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                            <TextBlock Grid.Column="0" Text="Field Mapping" FontFamily="Consolas,Monospace" FontSize="10" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                            <TextBlock Grid.Column="1" Text="&#xe627;" FontFamily="{StaticResource MaterialIcons}" FontSize="14" Foreground="{StaticResource Primary}"/>
+                                        </Grid>
+                                        <TextBlock Text="Product_Name_Main" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Preview: &quot;Dark Roast Arabica&quot;" FontSize="9" FontStyle="Italic" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,8,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Row="2" Background="#0a000000" Padding="16">
+                    <Button Background="#1Afe8983" Foreground="{StaticResource Error}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="8" CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="&#xe872;" FontFamily="{StaticResource MaterialIcons}" FontSize="14"/>
+                            <TextBlock Text="REMOVE ELEMENT" FontSize="10" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+
+</UserControl>

@@ -1,0 +1,109 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LabelStudio.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="LabelStudio.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Technical Label Designer"
+        Background="{StaticResource Background}">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="250,*">
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="#f1f5f9" BorderBrush="{StaticResource OutlineVariant}" BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Row="0" Margin="24">
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,32">
+                        <Border Width="32" Height="32" CornerRadius="4" Background="{StaticResource Primary}" VerticalAlignment="Center">
+                            <TextBlock Text="&#xea3b;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnPrimary}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Label Studio" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="16" Foreground="#0f172a"/>
+                            <TextBlock Text="Technical Draftsman" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Command="{Binding NavigateToEditorCommand}" Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" CornerRadius="8" Padding="16,10" Margin="0,0,0,32">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}" FontSize="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="New Project" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <StackPanel Spacing="4">
+                        <Button Command="{Binding NavigateToTemplatesCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="&#xe99b;" FontFamily="{StaticResource MaterialIcons}" Foreground="#1d4ed8"/>
+                                <TextBlock Text="Templates" Foreground="#1d4ed8" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding NavigateToEditorCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="&#xe2c7;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="Library" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding NavigateToPrintPreviewCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="Print Settings" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Row="2" BorderBrush="#e2e8f0" BorderThickness="0,1,0,0" Padding="24">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="40" Height="40" CornerRadius="20" Background="#cbd5e1" ClipToBounds="True">
+                            <TextBlock Text="&#xe7fd;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#475569" FontSize="24"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Alex Rivera" FontWeight="Bold" Foreground="{StaticResource OnSurface}"/>
+                            <TextBlock Text="Pro License" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1" RowDefinitions="56,*">
+            <!-- Top Toolbar -->
+            <Border Grid.Row="0" Background="#f8fafc" BorderBrush="#e2e8f0" BorderThickness="0,0,0,1">
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="24,0">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="32">
+                        <TextBlock Text="Technical Label Designer" FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold" FontSize="16" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+                            <TextBlock Text="FILE" FontSize="12" FontWeight="SemiBold" Foreground="#2563eb" Padding="0,0,0,4"/>
+                            <TextBlock Text="EDIT" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <TextBlock Text="VIEW" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <TextBlock Text="ARRANGE" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,16,0">
+                            <TextBlock Text="&#xe8f4;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
+                            <TextBlock Text="&#xe889;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
+                            <TextBlock Text="&#xe8fd;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
+                        </StackPanel>
+                        <Button Content="SAVE" Background="Transparent" Foreground="#475569" FontWeight="Bold" FontSize="10" Padding="16,6"/>
+                        <Button Command="{Binding NavigateToPrintPreviewCommand}" Content="PRINT" Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}" FontWeight="Bold" FontSize="10" Padding="20,6" CornerRadius="4"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Dynamic Content -->
+            <ContentControl Grid.Row="1" Content="{Binding CurrentContent}"/>
+        </Grid>
+    </Grid>
+
+</Window>
