@@ -7,7 +7,7 @@
 
 
     <Application.Resources>
-        <FontFamily x:Key="InterFont">avares://LabelStudio/Assets/Fonts/Inter.ttf#Inter</FontFamily>
+        <FontFamily x:Key="InterFont">Inter</FontFamily>
         <FontFamily x:Key="ManropeFont">avares://LabelStudio/Assets/Fonts/Manrope.ttf#Manrope</FontFamily>
         <FontFamily x:Key="MaterialIcons">avares://LabelStudio/Assets/Fonts/MaterialSymbolsOutlined.ttf#Material Symbols Outlined</FontFamily>
 

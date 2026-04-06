@@ -117,11 +117,7 @@
                     <StackPanel Spacing="20">
                         <StackPanel Spacing="8">
                             <TextBlock Text="TARGET PRINTER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
-                            <ComboBox SelectedIndex="0" HorizontalAlignment="Stretch" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6" FontSize="14" FontWeight="Medium">
-                                <ComboBoxItem>Zebra ZT411 Industrial</ComboBoxItem>
-                                <ComboBoxItem>Brother TD-4420DN</ComboBoxItem>
-                                <ComboBoxItem>Epson TM-C3500</ComboBoxItem>
-                            </ComboBox>
+                            <ComboBox ItemsSource="{Binding Printers}" SelectedItem="{Binding SelectedPrinter}" HorizontalAlignment="Stretch" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6" FontSize="14" FontWeight="Medium"/>
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                                 <Border Width="8" Height="8" CornerRadius="4" Background="#10b981"/>
                                 <TextBlock Text="Online • Ready to print" FontSize="11" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}"/>
