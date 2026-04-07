@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:LabelStudio.ViewModels"
+             xmlns:local="using:LabelStudio.Views"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="LabelStudio.Views.EditorView"
              x:DataType="vm:EditorViewModel"
@@ -110,6 +111,22 @@
                                     </StackPanel>
                                 </StackPanel>
                             </Button>
+
+                            <Button Command="{Binding AddImageCommand}"
+                                    HorizontalAlignment="Stretch" CornerRadius="8"
+                                    Background="{StaticResource SurfaceContainerLowest}"
+                                    Padding="12,10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="&#xe3f4;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20" Foreground="{StaticResource OnSurface}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Image" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="PNG, JPEG from file" FontSize="10"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
 
                         <!-- Layer list -->
@@ -150,9 +167,33 @@
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
                               VerticalScrollBarVisibility="Auto">
-                    <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Margin="40"
-                            BoxShadow="0 4 24 0 #33000000">
+                    <LayoutTransformControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <LayoutTransformControl.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding CanvasZoom}" ScaleY="{Binding CanvasZoom}"/>
+                        </LayoutTransformControl.LayoutTransform>
+
+                        <!-- Ruler + canvas grid -->
+                        <Grid ColumnDefinitions="22,Auto" RowDefinitions="22,Auto"
+                              Margin="40">
+
+                            <!-- Corner cell -->
+                            <Border Grid.Row="0" Grid.Column="0"
+                                    Background="#F5F5FA"
+                                    BorderBrush="#D8D8E2" BorderThickness="0,0,1,1"/>
+
+                            <!-- Horizontal ruler -->
+                            <local:RulerControl Grid.Row="0" Grid.Column="1"
+                                               Orientation="Horizontal"
+                                               Length="{Binding CanvasWidth}"/>
+
+                            <!-- Vertical ruler -->
+                            <local:RulerControl Grid.Row="1" Grid.Column="0"
+                                               Orientation="Vertical"
+                                               Length="{Binding CanvasHeight}"/>
+
+                            <!-- Canvas with shadow -->
+                            <Border Grid.Row="1" Grid.Column="1"
+                                    BoxShadow="0 4 24 0 #33000000">
 
                         <!-- Label canvas — exact size in pixels based on mm -->
                         <Canvas Name="LabelCanvas"
@@ -204,7 +245,7 @@
                                                 <TextBlock x:CompileBindings="False"
                                                            IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsText}}"
                                                            Text="{Binding Content}"
-                                                           FontFamily="{Binding FontFamilyResolved}"
+                                                           FontFamily="{Binding FontFamily}"
                                                            FontSize="{Binding FontSize}"
                                                            FontWeight="{Binding Bold, Converter={x:Static vm:BoolToFontWeightConverter.Instance}}"
                                                            FontStyle="{Binding Italic, Converter={x:Static vm:BoolToFontStyleConverter.Instance}}"
@@ -268,14 +309,34 @@
                                                         IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsRect}}"
                                                         BorderBrush="{StaticResource OnSurface}"
                                                         BorderThickness="2" Margin="2"/>
+
+                                                <!-- Image -->
+                                                <Image x:CompileBindings="False"
+                                                       IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsImage}}"
+                                                       Source="{Binding ImageSource}"
+                                                       Stretch="Fill"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+
+                            <!-- Safe-area margin guide -->
+                            <Rectangle IsVisible="{Binding HasCanvasMargin}"
+                                       IsHitTestVisible="False"
+                                       Canvas.Left="{Binding CanvasMarginPx}"
+                                       Canvas.Top="{Binding CanvasMarginPx}"
+                                       Width="{Binding CanvasSafeWidth}"
+                                       Height="{Binding CanvasSafeHeight}"
+                                       Stroke="#80FF6600"
+                                       StrokeThickness="1"
+                                       StrokeDashArray="4,3"
+                                       Fill="Transparent"/>
                         </Canvas>
 
-                    </Border>
+                            </Border>
+                        </Grid>
+                    </LayoutTransformControl>
                 </ScrollViewer>
 
                 <!-- Canvas toolbar -->
@@ -301,6 +362,47 @@
                                     Command="{Binding DeleteSelectedCommand}">
                                 <TextBlock Text="&#xe872;" FontFamily="{StaticResource MaterialIcons}"
                                            FontSize="18" Foreground="#dc2626"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Margin adjustment -->
+                    <Border Background="{StaticResource SurfaceContainerLowest}"
+                            BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                            CornerRadius="24" Padding="14,6">
+                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <TextBlock Text="MARGIN" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"
+                                       VerticalAlignment="Center"/>
+                            <Slider Value="{Binding CanvasMarginMm}" Minimum="0" Maximum="10"
+                                    Width="100" VerticalAlignment="Center"
+                                    Foreground="{StaticResource Primary}"/>
+                            <TextBlock Text="{Binding CanvasMarginMmLabel}" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource Primary}" VerticalAlignment="Center"
+                                       MinWidth="30"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Zoom control -->
+                    <Border Background="{StaticResource SurfaceContainerLowest}"
+                            BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                            CornerRadius="24" Padding="6,4">
+                        <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                            <Button Background="Transparent" Padding="6,4" CornerRadius="16"
+                                    Command="{Binding ZoomOutCommand}">
+                                <TextBlock Text="&#xe15b;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="16" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Button>
+                            <Button Background="Transparent" Padding="6,4" CornerRadius="16"
+                                    Command="{Binding ZoomResetCommand}">
+                                <TextBlock Text="{Binding CanvasZoomLabel}" FontSize="11" FontWeight="Bold"
+                                           Foreground="{StaticResource OnSurface}" MinWidth="36"
+                                           TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                            <Button Background="Transparent" Padding="6,4" CornerRadius="16"
+                                    Command="{Binding ZoomInCommand}">
+                                <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="16" Foreground="{StaticResource OnSurfaceVariant}"/>
                             </Button>
                         </StackPanel>
                     </Border>

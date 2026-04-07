@@ -19,8 +19,26 @@ public partial class PrintPreviewViewModel : ViewModelBase
     [ObservableProperty] private int    _copies = 1;
     [ObservableProperty] private bool   _isPrinting;
     [ObservableProperty] private string _statusMessage = string.Empty;
+    [ObservableProperty] private double _marginMm = 0;
 
     public EditorViewModel Editor => _editor;
+
+    private const double MmToPx = 3.7795;
+
+    partial void OnMarginMmChanged(double v)
+    {
+        OnPropertyChanged(nameof(MarginMmLabel));
+        OnPropertyChanged(nameof(MarginPx));
+        OnPropertyChanged(nameof(PreviewSafeWidth));
+        OnPropertyChanged(nameof(PreviewSafeHeight));
+        OnPropertyChanged(nameof(HasMargin));
+    }
+
+    public string MarginMmLabel    => $"{_marginMm:0.#}mm";
+    public double MarginPx         => _marginMm * MmToPx;
+    public double PreviewSafeWidth  => Math.Max(0, Editor.CanvasWidth  - 2 * MarginPx);
+    public double PreviewSafeHeight => Math.Max(0, Editor.CanvasHeight - 2 * MarginPx);
+    public bool   HasMargin        => _marginMm > 0;
 
     public PrintPreviewViewModel(EditorViewModel editor)
     {
@@ -85,22 +103,22 @@ public partial class PrintPreviewViewModel : ViewModelBase
                 doc.DefaultPageSettings.PaperSize = paperSize;
                 doc.DefaultPageSettings.Margins   = new Margins(0, 0, 0, 0);
 
-                var bmp   = labelBmp;        // local for lambda capture
-                var _dpiX = dpiX;
-                var _dpiY = dpiY;
+                var bmp    = labelBmp;        // local for lambda capture
+                var _dpiX  = dpiX;
+                var _dpiY  = dpiY;
+                var _mgnPx = (float)(_marginMm * dpiX / 25.4f);
                 doc.PrintPage += (_, e) =>
                 {
                     e.Graphics!.PageUnit = GraphicsUnit.Pixel;
 
-                    // The driver shifts the graphics origin by its hard margin (non-printable
-                    // zone). Translate back to the true physical page corner, then reset the
-                    // clip rect so drawing at world (0,0) is no longer clipped.
+                    // Compensate for printer hard margin (non-printable zone).
                     float hmX = (float)(e.PageSettings.HardMarginX / 100.0 * _dpiX);
                     float hmY = (float)(e.PageSettings.HardMarginY / 100.0 * _dpiY);
                     e.Graphics.TranslateTransform(-hmX, -hmY);
                     e.Graphics.ResetClip();
 
-                    e.Graphics.DrawImage(bmp, 0, 0, bmpW, bmpH);
+                    // Apply user-defined margin offset (shifts content away from edge).
+                    e.Graphics.DrawImage(bmp, _mgnPx, _mgnPx, bmpW, bmpH);
                     e.HasMorePages = false;
                 };
                 doc.Print();
@@ -160,6 +178,11 @@ public partial class PrintPreviewViewModel : ViewModelBase
                 case ElementKind.Rectangle:
                     using (var pen = new Pen(Color.Black, Math.Max(1f, 0.3f * sx)))
                         g.DrawRectangle(pen, x, y, mw, mh);
+                    break;
+                case ElementKind.Image:
+                    if (!string.IsNullOrEmpty(m.ImagePath) && System.IO.File.Exists(m.ImagePath))
+                        using (var img = System.Drawing.Image.FromFile(m.ImagePath))
+                            g.DrawImage(img, x, y, mw, mh);
                     break;
             }
         }

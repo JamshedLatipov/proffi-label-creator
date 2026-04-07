@@ -1,7 +1,9 @@
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
+using System.IO;
 
 namespace LabelStudio.ViewModels;
 
@@ -45,6 +47,17 @@ public partial class ElementViewModel : ViewModelBase
     [ObservableProperty] private bool   _italic;
     [ObservableProperty] private string _color;
     [ObservableProperty] private string _barcodeValue;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ImageSource))]
+    private string _imagePath;
+
+    // Bitmap cached here so Skia never GC's the native backing while rendering.
+    private Bitmap? _cachedImageSource;
+
+    public Bitmap? ImageSource => _cachedImageSource;
+
+    private static Bitmap? LoadBitmap(string? path) =>
+        !string.IsNullOrEmpty(path) && File.Exists(path) ? new Bitmap(path) : null;
 
     /// <summary>Resolves the stored font name to a proper FontFamily, including embedded avares:// fonts.</summary>
     public FontFamily FontFamilyResolved => _fontFamily switch
@@ -97,6 +110,8 @@ public partial class ElementViewModel : ViewModelBase
         _italic      = model.Italic;
         _color       = model.Color;
         _barcodeValue = model.BarcodeValue;
+        _imagePath           = model.ImagePath;
+        _cachedImageSource   = LoadBitmap(model.ImagePath);
     }
 
     // ── Sync px → mm back to model (called after drag) ─────────────────
@@ -122,6 +137,13 @@ public partial class ElementViewModel : ViewModelBase
     partial void OnItalicChanged(bool value)         { Model.Italic      = value; _editor.MarkDirty(); }
     partial void OnColorChanged(string value)        { Model.Color       = value; _editor.MarkDirty(); }
     partial void OnBarcodeValueChanged(string value) { Model.BarcodeValue = value; _editor.MarkDirty(); }
+    partial void OnImagePathChanged(string value)
+    {
+        _cachedImageSource?.Dispose();
+        _cachedImageSource = LoadBitmap(value);
+        Model.ImagePath    = value;
+        _editor.MarkDirty();
+    }
 
     [RelayCommand]
     private void Select() => _editor.SelectElement(this);

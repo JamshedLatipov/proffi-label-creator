@@ -1,5 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
@@ -26,6 +30,36 @@ public partial class EditorViewModel : ViewModelBase
     private const double MmToPx = 3.7795;
     public double CanvasWidth  => LabelWidth  * MmToPx;
     public double CanvasHeight => LabelHeight * MmToPx;
+
+    // ── Canvas zoom (0.25x – 4x) ──────────────────────────────────────
+    [ObservableProperty] private double _canvasZoom = 1.0;
+
+    partial void OnCanvasZoomChanged(double v) =>
+        OnPropertyChanged(nameof(CanvasZoomLabel));
+
+    public string CanvasZoomLabel => $"{_canvasZoom * 100:0}%";
+
+    [RelayCommand] private void ZoomIn()    => CanvasZoom = Math.Min(4.0, Math.Round(CanvasZoom + 0.25, 2));
+    [RelayCommand] private void ZoomOut()   => CanvasZoom = Math.Max(0.25, Math.Round(CanvasZoom - 0.25, 2));
+    [RelayCommand] private void ZoomReset() => CanvasZoom = 1.0;
+
+    // ── Margin / safe-area guide (for both canvas overlay and print offset) ──
+    [ObservableProperty] private double _canvasMarginMm = 0;
+
+    partial void OnCanvasMarginMmChanged(double v)
+    {
+        OnPropertyChanged(nameof(CanvasMarginPx));
+        OnPropertyChanged(nameof(CanvasMarginMmLabel));
+        OnPropertyChanged(nameof(CanvasSafeWidth));
+        OnPropertyChanged(nameof(CanvasSafeHeight));
+        OnPropertyChanged(nameof(HasCanvasMargin));
+    }
+
+    public double CanvasMarginPx     => _canvasMarginMm * MmToPx;
+    public string CanvasMarginMmLabel => $"{_canvasMarginMm:0.#}mm";
+    public double CanvasSafeWidth    => Math.Max(0, CanvasWidth  - 2 * CanvasMarginPx);
+    public double CanvasSafeHeight   => Math.Max(0, CanvasHeight - 2 * CanvasMarginPx);
+    public bool   HasCanvasMargin    => _canvasMarginMm > 0;
 
     // ── Elements ───────────────────────────────────────────────────────
     public ObservableCollection<ElementViewModel> Elements { get; } = [];
@@ -88,6 +122,7 @@ public partial class EditorViewModel : ViewModelBase
         _project.LabelWidth = value;
         IsDirty = true;
         OnPropertyChanged(nameof(CanvasWidth));
+        OnPropertyChanged(nameof(CanvasSafeWidth));
     }
 
     partial void OnLabelHeightChanged(double value)
@@ -95,6 +130,7 @@ public partial class EditorViewModel : ViewModelBase
         _project.LabelHeight = value;
         IsDirty = true;
         OnPropertyChanged(nameof(CanvasHeight));
+        OnPropertyChanged(nameof(CanvasSafeHeight));
     }
 
     partial void OnIsPortraitChanged(bool value)
@@ -128,6 +164,44 @@ public partial class EditorViewModel : ViewModelBase
 
     [RelayCommand]
     private void AddRectangle()  => AddElement(ElementKind.Rectangle,    30, 15);
+
+    [RelayCommand]
+    private async Task AddImage()
+    {
+        // Get the top-level window to open a storage picker.
+        if (Application.Current?.ApplicationLifetime
+                is not IClassicDesktopStyleApplicationLifetime desktop) return;
+        var window = desktop.MainWindow;
+        if (window is null) return;
+
+        var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title           = "Select image",
+            AllowMultiple   = false,
+            FileTypeFilter  =
+            [
+                new FilePickerFileType("Images") { Patterns = ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif"] }
+            ]
+        });
+
+        if (files is not { Count: > 0 }) return;
+        var path = files[0].TryGetLocalPath();
+        if (string.IsNullOrEmpty(path)) return;
+
+        var model = new LabelElement
+        {
+            Kind      = ElementKind.Image,
+            X = 5, Y = 5,
+            Width     = 40,
+            Height    = 30,
+            ImagePath = path,
+        };
+        _project.Elements.Add(model);
+        var vm = new ElementViewModel(model, this);
+        Elements.Add(vm);
+        SelectElement(vm);
+        IsDirty = true;
+    }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private void DeleteSelected()

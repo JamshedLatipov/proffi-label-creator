@@ -117,11 +117,28 @@
                                                     <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsRect}}"
                                                             BorderBrush="{StaticResource OnSurface}"
                                                             BorderThickness="2" Margin="2"/>
+
+                                                    <!-- Image -->
+                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsImage}}"
+                                                           Source="{Binding ImageSource}"
+                                                           Stretch="Fill"/>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+
+                                <!-- Safe-area margin guide -->
+                                <Rectangle IsVisible="{Binding HasMargin, x:CompileBindings=False}"
+                                           IsHitTestVisible="False"
+                                           Canvas.Left="{Binding MarginPx, x:CompileBindings=False}"
+                                           Canvas.Top="{Binding MarginPx, x:CompileBindings=False}"
+                                           Width="{Binding PreviewSafeWidth, x:CompileBindings=False}"
+                                           Height="{Binding PreviewSafeHeight, x:CompileBindings=False}"
+                                           Stroke="#80FF6600"
+                                           StrokeThickness="1"
+                                           StrokeDashArray="4,3"
+                                           Fill="Transparent"/>
                             </Canvas>
                         </Border>
                     </Viewbox>
@@ -179,9 +196,9 @@
                         <StackPanel Spacing="8">
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Grid.Column="0" Text="MARGIN ADJUSTMENT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
-                                <TextBlock Grid.Column="1" Text="2.5mm" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Primary}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding MarginMmLabel}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Primary}"/>
                             </Grid>
-                            <Slider Value="2.5" Minimum="0" Maximum="10" Foreground="{StaticResource Primary}"/>
+                            <Slider Value="{Binding MarginMm}" Minimum="0" Maximum="10" Foreground="{StaticResource Primary}"/>
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Grid.Column="0" Text="0mm" FontSize="9" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}"/>
                                 <TextBlock Grid.Column="1" Text="10mm" FontSize="9" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}"/>

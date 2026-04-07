@@ -41,6 +41,7 @@ public class ElementKindConverter : IValueConverter
     public static readonly ElementKindConverter IsBarcode     = new(k => k == ElementKind.Barcode);
     public static readonly ElementKindConverter IsQr          = new(k => k == ElementKind.QrCode);
     public static readonly ElementKindConverter IsRect        = new(k => k == ElementKind.Rectangle);
+    public static readonly ElementKindConverter IsImage         = new(k => k == ElementKind.Image);
     public static readonly ElementKindConverter IsTextOrDynamic =
         new(k => k is ElementKind.Text or ElementKind.DynamicField);
 

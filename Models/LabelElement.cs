@@ -25,4 +25,7 @@ public class LabelElement
 
     // Barcode / QR only
     public string BarcodeValue { get; set; } = "0000000000000";
+
+    // Image only
+    public string ImagePath { get; set; } = string.Empty;
 }
