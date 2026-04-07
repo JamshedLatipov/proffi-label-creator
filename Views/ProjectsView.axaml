@@ -1,0 +1,158 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             x:Class="LabelStudio.Views.ProjectsView"
+             x:DataType="vm:ProjectsViewModel">
+
+    <Grid RowDefinitions="Auto,*" Margin="32">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,32">
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                    <TextBlock Text="Library" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                    <TextBlock Text="&#xe5cc;" FontFamily="{StaticResource MaterialIcons}" FontSize="14"
+                               Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center"/>
+                    <TextBlock Text="My Projects" FontSize="12" FontWeight="Medium" Foreground="{StaticResource OnSurface}"/>
+                </StackPanel>
+                <TextBlock Text="My Projects" FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold"
+                           FontSize="32" Foreground="{StaticResource OnSurface}"/>
+                <TextBlock Text="Your saved label projects. Open to continue editing or print."
+                           FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Command="{Binding NewProjectCommand}"
+                    Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}"
+                    CornerRadius="8" Padding="16,10" VerticalAlignment="Bottom">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}"
+                               FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="New Project" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+
+            <!-- Empty state -->
+            <Border IsVisible="{Binding HasNoProjects}"
+                    Background="{StaticResource SurfaceContainerLowest}"
+                    BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                    CornerRadius="12" Padding="40">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Spacing="16" Margin="0,60">
+                    <TextBlock Text="&#xe2c8;" FontFamily="{StaticResource MaterialIcons}"
+                               FontSize="56" Foreground="{StaticResource OutlineVariant}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="No saved projects yet"
+                               FontFamily="{StaticResource ManropeFont}" FontWeight="Bold"
+                               FontSize="18" HorizontalAlignment="Center"
+                               Foreground="{StaticResource OnSurface}"/>
+                    <TextBlock Text="Create a new project, then hit Save in the toolbar."
+                               FontSize="13" Foreground="{StaticResource OnSurfaceVariant}"
+                               HorizontalAlignment="Center"/>
+                    <Button Command="{Binding NewProjectCommand}"
+                            Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}"
+                            HorizontalAlignment="Center" CornerRadius="8" Padding="24,12" Margin="0,8,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}"
+                                       FontSize="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="Create First Project" FontWeight="SemiBold" FontSize="13"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Projects list -->
+            <ScrollViewer IsVisible="{Binding !HasNoProjects}">
+                <Border Background="{StaticResource SurfaceContainerLowest}"
+                        BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                        CornerRadius="12">
+                    <ItemsControl ItemsSource="{Binding Projects}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LabelProjectViewModel">
+                                <Border BorderBrush="{StaticResource OutlineVariant}"
+                                        BorderThickness="0,0,0,1" Padding="20,16">
+                                    <Grid ColumnDefinitions="44,*,Auto">
+
+                                        <!-- Avatar circle with initial letter -->
+                                        <Border Grid.Column="0" Width="36" Height="36"
+                                                CornerRadius="18"
+                                                Background="{StaticResource PrimaryContainer}"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding InitialLetter}"
+                                                       FontSize="15" FontWeight="Bold"
+                                                       Foreground="{StaticResource Primary}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+
+                                        <!-- Project info -->
+                                        <StackPanel Grid.Column="1" Spacing="3"
+                                                    VerticalAlignment="Center" Margin="0,0,16,0">
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontSize="14" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource OnSurface}"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock Text="{Binding SizeLabel}"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource OnSurfaceVariant}"/>
+                                                <TextBlock Text="·" FontSize="11"
+                                                           Foreground="{StaticResource OutlineVariant}"/>
+                                                <TextBlock Text="{Binding ProfileLabel}"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource OnSurfaceVariant}"/>
+                                                <TextBlock Text="·" FontSize="11"
+                                                           Foreground="{StaticResource OutlineVariant}"/>
+                                                <TextBlock Text="{Binding ModifiedLabel}"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource OnSurfaceVariant}"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Description}"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource OnSurfaceVariant}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxWidth="500"/>
+                                        </StackPanel>
+
+                                        <!-- Actions -->
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                    Spacing="8" VerticalAlignment="Center">
+                                            <Button Command="{Binding OpenCommand}"
+                                                    Background="{StaticResource Primary}"
+                                                    Foreground="{StaticResource OnPrimary}"
+                                                    CornerRadius="8" Padding="16,8">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <TextBlock Text="Open" FontWeight="SemiBold"
+                                                               FontSize="12" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xe5c8;"
+                                                               FontFamily="{StaticResource MaterialIcons}"
+                                                               FontSize="14" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Command="{Binding DeleteCommand}"
+                                                    Background="Transparent"
+                                                    CornerRadius="8" Padding="10,8">
+                                                <TextBlock Text="&#xe872;"
+                                                           FontFamily="{StaticResource MaterialIcons}"
+                                                           FontSize="18" Foreground="#dc2626"/>
+                                            </Button>
+                                        </StackPanel>
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+
+</UserControl>

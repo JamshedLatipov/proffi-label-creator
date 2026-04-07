@@ -14,96 +14,117 @@
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <StackPanel Margin="0,0,0,32">
                         <TextBlock Text="Print Preview" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="24" Foreground="{StaticResource OnSurface}"/>
-                        <TextBlock Text="Populated with real-time ERP data: SKU-20948-X" FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding Editor.ProjectName, FallbackValue='Label Preview'}"
+                                   FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,4,0,0"/>
                     </StackPanel>
 
-                    <!-- Label Mockup -->
-                    <Border Width="500" Height="333" Background="{StaticResource SurfaceContainerLowest}" CornerRadius="8" BoxShadow="0 4 6 -1 #1A000000, 0 2 4 -1 #0F000000">
-                        <Grid RowDefinitions="Auto,*,Auto" Margin="32">
-                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <Border BorderBrush="#0c000000" BorderThickness="0,0,0,2" Grid.ColumnSpan="2" Margin="0,0,0,-16" Padding="0,0,0,16"/>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="PRODUCT COMPONENT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
-                                    <TextBlock Text="TITANIUM ALLOY STRUT" FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold" FontSize="20" Foreground="{StaticResource OnSurface}" Margin="0,4"/>
-                                    <TextBlock Text="Grade 5 Annealed / Aerospace Std." FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                    <TextBlock Text="BATCH ID" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2" HorizontalAlignment="Right"/>
-                                    <TextBlock Text="#77-B-9920" FontFamily="Consolas,Monospace" FontWeight="SemiBold" FontSize="14" Margin="0,4" HorizontalAlignment="Right"/>
-                                </StackPanel>
-                            </Grid>
+                    <!-- Actual label canvas rendered from editor elements -->
+                    <Viewbox Stretch="Uniform" MaxWidth="600" MaxHeight="400">
+                        <Border BoxShadow="0 4 6 -1 #1A000000, 0 2 4 -1 #0F000000"
+                                Padding="0">
+                            <Canvas x:CompileBindings="False"
+                                    Width="{Binding Editor.CanvasWidth}"
+                                    Height="{Binding Editor.CanvasHeight}"
+                                    Background="White"
+                                    ClipToBounds="True">
+                                <ItemsControl Canvas.Left="0" Canvas.Top="0"
+                                              Width="{Binding Editor.CanvasWidth}"
+                                              Height="{Binding Editor.CanvasHeight}"
+                                              Padding="0"
+                                              ItemsSource="{Binding Editor.Elements}"
+                                              x:CompileBindings="False">
+                                    <ItemsControl.ItemContainerTheme>
+                                        <ControlTheme TargetType="ContentPresenter">
+                                            <Setter Property="Margin"      Value="0"/>
+                                            <Setter Property="Padding"     Value="0"/>
+                                            <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                            <Setter Property="Canvas.Top"  Value="{Binding Top}"/>
+                                        </ControlTheme>
+                                    </ItemsControl.ItemContainerTheme>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:CompileBindings="False">
+                                            <Border Width="{Binding Width}"
+                                                    Height="{Binding Height}"
+                                                    BorderThickness="0"
+                                                    CornerRadius="0">
 
-                            <Grid Grid.Row="1" ColumnDefinitions="*,*">
-                                <StackPanel Grid.Column="0" Spacing="12">
-                                    <StackPanel>
-                                        <TextBlock Text="WEIGHT" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                            <TextBlock Text="1.458 kg" FontSize="18" FontWeight="Medium"/>
-                                            <TextBlock Text="±0.001" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}" Margin="4,0,0,0" VerticalAlignment="Bottom"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    <StackPanel>
-                                        <TextBlock Text="UNIT PRICE" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
-                                        <TextBlock Text="$284.50" FontSize="18" FontWeight="Medium" Foreground="{StaticResource Primary}" Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </StackPanel>
+                                                <Grid>
+                                                    <!-- Static Text -->
+                                                    <TextBlock IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsText}}"
+                                                               Text="{Binding Content}"
+                                                               FontFamily="{Binding FontFamily}"
+                                                               FontSize="{Binding FontSize}"
+                                                               FontWeight="{Binding Bold, Converter={x:Static vm:BoolToFontWeightConverter.Instance}}"
+                                                               FontStyle="{Binding Italic, Converter={x:Static vm:BoolToFontStyleConverter.Instance}}"
+                                                               TextWrapping="Wrap"
+                                                               Margin="3,2"/>
 
-                                <Border Grid.Column="1" Background="{StaticResource SurfaceContainerLow}" CornerRadius="6" Padding="16" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <!-- Barcode Mock -->
-                                        <Border Height="48" Background="{StaticResource OnSurface}" Margin="0,0,0,8" Padding="4">
-                                            <StackPanel Orientation="Horizontal" Spacing="1">
-                                                <Border Width="4" Background="White"/>
-                                                <Border Width="8" Background="White"/>
-                                                <Border Width="2" Background="White"/>
-                                                <Border Width="6" Background="White"/>
-                                                <Border Width="4" Background="White"/>
-                                                <Border Width="2" Background="White"/>
-                                                <Border Width="8" Background="White"/>
-                                                <Border Width="4" Background="White"/>
-                                                <Border Width="2" Background="White"/>
-                                                <Border Width="6" Background="White"/>
-                                                <Border Width="4" Background="White"/>
-                                                <Border Width="6" Background="White"/>
-                                                <Border Width="2" Background="White"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <TextBlock Text="5901234123457" FontFamily="Consolas,Monospace" FontSize="10" LetterSpacing="3" HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
+                                                    <!-- Dynamic Field -->
+                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsDynamic}}"
+                                                            Background="#e6f0fa" CornerRadius="3" Margin="2">
+                                                        <TextBlock Text="{Binding Content}"
+                                                                   FontFamily="Consolas,Monospace"
+                                                                   FontSize="{Binding FontSize}"
+                                                                   Foreground="{StaticResource Primary}"
+                                                                   Margin="4,2" TextWrapping="Wrap"/>
+                                                    </Border>
 
-                            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,16,0,0">
-                                <Border BorderBrush="#0c000000" BorderThickness="0,1,0,0" Grid.ColumnSpan="2" Margin="0,-16,0,16"/>
-                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Bottom">
-                                    <StackPanel>
-                                        <TextBlock Text="WAREHOUSE" FontSize="8" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
-                                        <TextBlock Text="SEC-04 / BIN-12" FontSize="10" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                    <StackPanel>
-                                        <TextBlock Text="COMPLIANCE" FontSize="8" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
-                                        <TextBlock Text="ISO 9001:2015" FontSize="10" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                <Border Grid.Column="1" Width="32" Height="32" CornerRadius="16" Background="#1A000000" VerticalAlignment="Bottom"/>
-                            </Grid>
-                        </Grid>
-                    </Border>
+                                                    <!-- Barcode placeholder -->
+                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
+                                                            Background="{StaticResource OnSurface}"
+                                                            Margin="4,4">
+                                                        <StackPanel>
+                                                            <StackPanel Orientation="Horizontal" Spacing="1"
+                                                                        Height="28" Margin="4,4,4,2">
+                                                                <Border Width="3" Background="White"/>
+                                                                <Border Width="2" Background="White"/>
+                                                                <Border Width="5" Background="White"/>
+                                                                <Border Width="3" Background="White"/>
+                                                                <Border Width="8" Background="White"/>
+                                                                <Border Width="3" Background="White"/>
+                                                                <Border Width="2" Background="White"/>
+                                                                <Border Width="5" Background="White"/>
+                                                                <Border Width="3" Background="White"/>
+                                                                <Border Width="7" Background="White"/>
+                                                                <Border Width="3" Background="White"/>
+                                                                <Border Width="2" Background="White"/>
+                                                            </StackPanel>
+                                                            <TextBlock Text="{Binding BarcodeValue}"
+                                                                       FontFamily="Consolas,Monospace"
+                                                                       FontSize="6" LetterSpacing="2"
+                                                                       Foreground="White"
+                                                                       HorizontalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
 
-                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,32,0,0">
-                        <Button Background="{StaticResource SurfaceContainerHighest}" Foreground="{StaticResource OnSurface}" CornerRadius="8" Padding="16,8">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="&#xe8ff;" FontFamily="{StaticResource MaterialIcons}" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="Enlarge" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Background="{StaticResource SurfaceContainerHighest}" Foreground="{StaticResource OnSurface}" CornerRadius="8" Padding="16,8">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="&#xe5d5;" FontFamily="{StaticResource MaterialIcons}" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="Refresh Data" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
+                                                    <!-- QR Code placeholder -->
+                                                    <Grid IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
+                                                          Margin="4">
+                                                        <Border Background="{StaticResource OnSurface}"/>
+                                                        <TextBlock Text="&#xe00a;"
+                                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                                   FontSize="28" Foreground="White"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Grid>
+
+                                                    <!-- Rectangle -->
+                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsRect}}"
+                                                            BorderBrush="{StaticResource OnSurface}"
+                                                            BorderThickness="2" Margin="2"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Canvas>
+                        </Border>
+                    </Viewbox>
                 </StackPanel>
             </Grid>
         </Border>
@@ -127,11 +148,11 @@
                         <StackPanel Spacing="8">
                             <TextBlock Text="QUANTITY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
                             <Grid ColumnDefinitions="Auto,*,Auto">
-                                <Button Grid.Column="0" Background="{StaticResource SurfaceContainerLowest}" Width="40" Height="40" CornerRadius="6">
+                                <Button Grid.Column="0" Command="{Binding DecreaseCopiesCommand}" Background="{StaticResource SurfaceContainerLowest}" Width="40" Height="40" CornerRadius="6">
                                     <TextBlock Text="&#xe15b;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Button>
-                                <TextBox Grid.Column="1" Text="12" TextAlignment="Center" FontWeight="Bold" FontSize="14" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" Margin="8,0" CornerRadius="6" VerticalContentAlignment="Center"/>
-                                <Button Grid.Column="2" Background="{StaticResource SurfaceContainerLowest}" Width="40" Height="40" CornerRadius="6">
+                                <TextBox Grid.Column="1" Text="{Binding Copies}" TextAlignment="Center" FontWeight="Bold" FontSize="14" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" Margin="8,0" CornerRadius="6" VerticalContentAlignment="Center"/>
+                                <Button Grid.Column="2" Command="{Binding IncreaseCopiesCommand}" Background="{StaticResource SurfaceContainerLowest}" Width="40" Height="40" CornerRadius="6">
                                     <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Button>
                             </Grid>
@@ -181,20 +202,29 @@
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="2" Spacing="12" Margin="0,16,0,0">
-                    <Border Background="#e6f0fa" BorderBrush="#ccdbf2" BorderThickness="1" CornerRadius="12" Padding="16">
+                    <Border Background="#e6f0fa" BorderBrush="#ccdbf2" BorderThickness="1" CornerRadius="12" Padding="16"
+                            IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <TextBlock Text="&#xe88e;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource Primary}"/>
-                            <TextBlock Text="Total of 12 labels will use approx. 1.8m of ribbon." FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Primary}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Primary}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
-                    <Button Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="16" CornerRadius="12">
+                    <Button Command="{Binding PrintCommand}"
+                            IsEnabled="{Binding !IsPrinting}"
+                            Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="16" CornerRadius="12">
                         <StackPanel Orientation="Horizontal" Spacing="12">
-                            <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center"/>
-                            <TextBlock Text="Send to Printer" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center"
+                                       IsVisible="{Binding !IsPrinting}"/>
+                            <TextBlock Text="&#xe9d0;" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center"
+                                       IsVisible="{Binding IsPrinting}"/>
+                            <TextBlock Text="Send to Printer" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                       IsVisible="{Binding !IsPrinting}"/>
+                            <TextBlock Text="Printing..." FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                       IsVisible="{Binding IsPrinting}"/>
                         </StackPanel>
                     </Button>
-                    <TextBlock Text="Auto-saving project before output..." FontSize="10" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Project is auto-saved before printing." FontSize="10" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>
         </Border>

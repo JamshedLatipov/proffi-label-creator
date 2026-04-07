@@ -30,7 +30,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <Button Command="{Binding NavigateToEditorCommand}" Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}"
+                    <Button Command="{Binding NavigateToNewProjectCommand}" Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" CornerRadius="8" Padding="16,10" Margin="0,0,0,32">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}" FontSize="16" VerticalAlignment="Center"/>
@@ -45,13 +45,19 @@
                                 <TextBlock Text="Templates" Foreground="#1d4ed8" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>
-                        <Button Command="{Binding NavigateToEditorCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                        <Button Command="{Binding NavigateToProjectsCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                <TextBlock Text="&#xe2c7;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
-                                <TextBlock Text="Library" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="&#xe2c8;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="My Projects" Foreground="{StaticResource OnSurfaceVariant}"/>
                             </StackPanel>
                         </Button>
-                        <Button Command="{Binding NavigateToPrintPreviewCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                        <Button Command="{Binding NavigateToPrinterProfilesCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="Printer Profiles" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding NavigateToPrinterProfilesCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
                                 <TextBlock Text="Print Settings" Foreground="{StaticResource OnSurfaceVariant}"/>
@@ -80,7 +86,9 @@
             <Border Grid.Row="0" Background="#f8fafc" BorderBrush="#e2e8f0" BorderThickness="0,0,0,1">
                 <Grid ColumnDefinitions="Auto,*,Auto" Margin="24,0">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="32">
-                        <TextBlock Text="Technical Label Designer" FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold" FontSize="16" VerticalAlignment="Center">
+                            <Run Text="{Binding CurrentProjectTitle}"/><Run Text="{Binding IsDirtyIndicator}" Foreground="{StaticResource Primary}"/>
+                        </TextBlock>
                         <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
                             <TextBlock Text="FILE" FontSize="12" FontWeight="SemiBold" Foreground="#2563eb" Padding="0,0,0,4"/>
                             <TextBlock Text="EDIT" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
@@ -95,7 +103,7 @@
                             <TextBlock Text="&#xe889;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
                             <TextBlock Text="&#xe8fd;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
                         </StackPanel>
-                        <Button Content="SAVE" Background="Transparent" Foreground="#475569" FontWeight="Bold" FontSize="10" Padding="16,6"/>
+                        <Button Command="{Binding SaveCurrentCommand}" Content="SAVE" Background="Transparent" Foreground="#475569" FontWeight="Bold" FontSize="10" Padding="16,6"/>
                         <Button Command="{Binding NavigateToPrintPreviewCommand}" Content="PRINT" Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}" FontWeight="Bold" FontSize="10" Padding="20,6" CornerRadius="4"/>
                     </StackPanel>
                 </Grid>
