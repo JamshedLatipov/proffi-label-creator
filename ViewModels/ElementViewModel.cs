@@ -45,6 +45,15 @@ public partial class ElementViewModel : ViewModelBase
     [ObservableProperty] private double _fontSize;
     [ObservableProperty] private bool   _bold;
     [ObservableProperty] private bool   _italic;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TextDecorationsList))]
+    private bool _underline;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TextDecorationsList))]
+    private bool _strikethrough;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TextBackgroundBrush))]
+    private string _textBackground;
     [ObservableProperty] private string _color;
     [ObservableProperty] private string _barcodeValue;
     [ObservableProperty]
@@ -60,6 +69,23 @@ public partial class ElementViewModel : ViewModelBase
         !string.IsNullOrEmpty(path) && File.Exists(path) ? new Bitmap(path) : null;
 
     /// <summary>Resolves the stored font name to a proper FontFamily, including embedded avares:// fonts.</summary>
+    public TextDecorationCollection? TextDecorationsList
+    {
+        get
+        {
+            if (!_underline && !_strikethrough) return null;
+            var list = new TextDecorationCollection();
+            if (_underline)     foreach (var d in TextDecorations.Underline)     list.Add(d);
+            if (_strikethrough) foreach (var d in TextDecorations.Strikethrough) list.Add(d);
+            return list;
+        }
+    }
+
+    public IBrush? TextBackgroundBrush =>
+        string.IsNullOrEmpty(_textBackground)
+            ? null
+            : new SolidColorBrush(Avalonia.Media.Color.Parse(_textBackground));
+
     public FontFamily FontFamilyResolved => _fontFamily switch
     {
         "Manrope" => new FontFamily("avares://LabelStudio/Assets/Fonts/Manrope.ttf#Manrope"),
@@ -106,9 +132,12 @@ public partial class ElementViewModel : ViewModelBase
         _content     = model.Content;
         _fontFamily  = model.FontFamily;
         _fontSize    = model.FontSize;
-        _bold        = model.Bold;
-        _italic      = model.Italic;
-        _color       = model.Color;
+        _bold           = model.Bold;
+        _italic         = model.Italic;
+        _underline      = model.Underline;
+        _strikethrough  = model.Strikethrough;
+        _textBackground = model.TextBackground;
+        _color          = model.Color;
         _barcodeValue = model.BarcodeValue;
         _imagePath           = model.ImagePath;
         _cachedImageSource   = LoadBitmap(model.ImagePath);
@@ -133,9 +162,12 @@ public partial class ElementViewModel : ViewModelBase
     partial void OnContentChanged(string value)      { Model.Content     = value; _editor.MarkDirty(); }
     partial void OnFontFamilyChanged(string value)   { Model.FontFamily  = value; _editor.MarkDirty(); }
     partial void OnFontSizeChanged(double value)     { Model.FontSize    = value; _editor.MarkDirty(); }
-    partial void OnBoldChanged(bool value)           { Model.Bold        = value; _editor.MarkDirty(); }
-    partial void OnItalicChanged(bool value)         { Model.Italic      = value; _editor.MarkDirty(); }
-    partial void OnColorChanged(string value)        { Model.Color       = value; _editor.MarkDirty(); }
+    partial void OnBoldChanged(bool value)              { Model.Bold           = value; _editor.MarkDirty(); }
+    partial void OnItalicChanged(bool value)           { Model.Italic         = value; _editor.MarkDirty(); }
+    partial void OnUnderlineChanged(bool value)        { Model.Underline      = value; _editor.MarkDirty(); }
+    partial void OnStrikethroughChanged(bool value)    { Model.Strikethrough  = value; _editor.MarkDirty(); }
+    partial void OnTextBackgroundChanged(string value) { Model.TextBackground = value; _editor.MarkDirty(); }
+    partial void OnColorChanged(string value)          { Model.Color          = value; _editor.MarkDirty(); }
     partial void OnBarcodeValueChanged(string value) { Model.BarcodeValue = value; _editor.MarkDirty(); }
     partial void OnImagePathChanged(string value)
     {
@@ -144,6 +176,9 @@ public partial class ElementViewModel : ViewModelBase
         Model.ImagePath    = value;
         _editor.MarkDirty();
     }
+
+    [RelayCommand]
+    private void SetTextBackground(string? color) => TextBackground = color ?? string.Empty;
 
     [RelayCommand]
     private void Select() => _editor.SelectElement(this);

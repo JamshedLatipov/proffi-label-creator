@@ -249,6 +249,8 @@
                                                            FontSize="{Binding FontSize}"
                                                            FontWeight="{Binding Bold, Converter={x:Static vm:BoolToFontWeightConverter.Instance}}"
                                                            FontStyle="{Binding Italic, Converter={x:Static vm:BoolToFontStyleConverter.Instance}}"
+                                                           TextDecorations="{Binding TextDecorationsList}"
+                                                           Background="{Binding TextBackgroundBrush}"
                                                            TextWrapping="Wrap"
                                                            Margin="3,2"/>
 
@@ -260,6 +262,7 @@
                                                                FontFamily="Consolas,Monospace"
                                                                FontSize="{Binding FontSize}"
                                                                Foreground="{StaticResource Primary}"
+                                                               TextDecorations="{Binding TextDecorationsList}"
                                                                Margin="4,2" TextWrapping="Wrap"/>
                                                 </Border>
 
@@ -574,7 +577,74 @@
                                     <TextBlock Text="&#xe23f;" FontFamily="{StaticResource MaterialIcons}"
                                                FontSize="16"/>
                                 </ToggleButton>
+                                <ToggleButton IsChecked="{Binding Underline}"
+                                             CornerRadius="6" Padding="12,6"
+                                             Background="{StaticResource SurfaceContainerLowest}">
+                                    <TextBlock Text="U" FontWeight="Bold" FontSize="14"
+                                               TextDecorations="Underline"/>
+                                </ToggleButton>
+                                <ToggleButton IsChecked="{Binding Strikethrough}"
+                                             CornerRadius="6" Padding="12,6"
+                                             Background="{StaticResource SurfaceContainerLowest}">
+                                    <TextBlock Text="S" FontWeight="Bold" FontSize="14"
+                                               TextDecorations="Strikethrough"/>
+                                </ToggleButton>
                             </StackPanel>
+                        </StackPanel>
+
+                        <!-- Text Background -->
+                        <StackPanel Spacing="8"
+                                    IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsText}}">
+                            <TextBlock Text="TEXT BACKGROUND" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <WrapPanel Orientation="Horizontal">
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter=""
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="None" Margin="0,0,4,4">
+                                    <Border Background="White" BorderBrush="{StaticResource OutlineVariant}"
+                                            BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="∅" FontSize="11"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </Border>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#FFFF00"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Yellow" Margin="0,0,4,4">
+                                    <Border Background="#FFFF00" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#FFD180"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Amber" Margin="0,0,4,4">
+                                    <Border Background="#FFD180" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#B9F6CA"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Green" Margin="0,0,4,4">
+                                    <Border Background="#B9F6CA" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#B3E5FC"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Blue" Margin="0,0,4,4">
+                                    <Border Background="#B3E5FC" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#F8BBD0"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Pink" Margin="0,0,4,4">
+                                    <Border Background="#F8BBD0" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#FF8A80"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Red" Margin="0,0,4,4">
+                                    <Border Background="#FF8A80" CornerRadius="3"/>
+                                </Button>
+                            </WrapPanel>
+                            <TextBox Text="{Binding TextBackground}"
+                                     Watermark="#RRGGBB (e.g. #FFFF00)"
+                                     FontFamily="Consolas,Monospace" FontSize="11"
+                                     Background="{StaticResource SurfaceContainerLowest}"
+                                     BorderBrush="{StaticResource OutlineVariant}"
+                                     CornerRadius="6" Padding="8,5"/>
                         </StackPanel>
 
                     </StackPanel>

@@ -61,6 +61,8 @@
                                                                FontSize="{Binding FontSize}"
                                                                FontWeight="{Binding Bold, Converter={x:Static vm:BoolToFontWeightConverter.Instance}}"
                                                                FontStyle="{Binding Italic, Converter={x:Static vm:BoolToFontStyleConverter.Instance}}"
+                                                               TextDecorations="{Binding TextDecorationsList}"
+                                                               Background="{Binding TextBackgroundBrush}"
                                                                TextWrapping="Wrap"
                                                                Margin="3,2"/>
 
@@ -71,6 +73,7 @@
                                                                    FontFamily="Consolas,Monospace"
                                                                    FontSize="{Binding FontSize}"
                                                                    Foreground="{StaticResource Primary}"
+                                                                   TextDecorations="{Binding TextDecorationsList}"
                                                                    Margin="4,2" TextWrapping="Wrap"/>
                                                     </Border>
 

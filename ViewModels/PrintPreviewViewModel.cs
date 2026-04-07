@@ -193,8 +193,21 @@ public partial class PrintPreviewViewModel : ViewModelBase
     private static void BmpDrawText(Graphics g, LabelElement m,
                                     float x, float y, float w, float h, float dpiX)
     {
-        var style  = (m.Bold   ? FontStyle.Bold   : FontStyle.Regular)
-                   | (m.Italic ? FontStyle.Italic : FontStyle.Regular);
+        // Background fill
+        if (!string.IsNullOrEmpty(m.TextBackground))
+        {
+            try
+            {
+                using var bgBrush = new SolidBrush(ColorTranslator.FromHtml(m.TextBackground));
+                g.FillRectangle(bgBrush, x, y, w, h);
+            }
+            catch { /* ignore invalid color */ }
+        }
+
+        var style = (m.Bold          ? FontStyle.Bold      : FontStyle.Regular)
+                  | (m.Italic        ? FontStyle.Italic     : FontStyle.Regular)
+                  | (m.Underline     ? FontStyle.Underline  : FontStyle.Regular)
+                  | (m.Strikethrough ? FontStyle.Strikeout  : FontStyle.Regular);
         var family = m.FontFamily.Split(',')[0].Trim();
         // Avalonia FontSize is in DIPs (96 per inch), not typographic points (72 per inch).
         // px = DIPs * dpi / 96
