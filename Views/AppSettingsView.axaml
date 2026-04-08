@@ -1,0 +1,178 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="LabelStudio.Views.AppSettingsView"
+             x:DataType="vm:AppSettingsViewModel"
+             Background="{StaticResource Background}">
+
+    <Grid ColumnDefinitions="280,*">
+
+        <!-- Left accent panel -->
+        <Border Grid.Column="0"
+                Background="{StaticResource Primary}">
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="20"
+                        Margin="40">
+                <Border Width="72" Height="72" CornerRadius="16"
+                        Background="{StaticResource OnPrimary}"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#xe4e9;"
+                               FontFamily="{StaticResource MaterialIcons}"
+                               Foreground="{StaticResource Primary}"
+                               FontSize="40"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="App Settings"
+                           FontFamily="{StaticResource ManropeFont}"
+                           FontSize="28"
+                           FontWeight="Black"
+                           Foreground="{StaticResource OnPrimary}"
+                           TextAlignment="Center"/>
+                <TextBlock Text="Configure your workspace&#10;and default preferences."
+                           FontSize="14"
+                           Foreground="{StaticResource OnPrimary}"
+                           Opacity="0.75"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Right settings area -->
+        <ScrollViewer Grid.Column="1" Padding="48,40">
+            <StackPanel Spacing="32" MaxWidth="520">
+
+                <!-- Back button -->
+                <Button Background="Transparent"
+                        Padding="0"
+                        HorizontalAlignment="Left"
+                        Command="{Binding BackCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="&#xe5c4;"
+                                   FontFamily="{StaticResource MaterialIcons}"
+                                   FontSize="20"
+                                   Foreground="{StaticResource OnSurfaceVariant}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Back"
+                                   Foreground="{StaticResource OnSurfaceVariant}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Title -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Settings"
+                               FontFamily="{StaticResource ManropeFont}"
+                               FontWeight="Bold"
+                               FontSize="28"
+                               Foreground="{StaticResource OnSurface}"/>
+                    <TextBlock Text="Manage your default warehouse and preferences."
+                               FontSize="14"
+                               Foreground="{StaticResource OnSurfaceVariant}"/>
+                </StackPanel>
+
+                <!-- Default Warehouse card -->
+                <Border Background="{StaticResource SurfaceContainerLow}"
+                        CornerRadius="12"
+                        Padding="24">
+                    <StackPanel Spacing="16">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="&#xe4e9;"
+                                       FontFamily="{StaticResource MaterialIcons}"
+                                       Foreground="{StaticResource Primary}"
+                                       FontSize="22"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="Default Warehouse"
+                                       FontFamily="{StaticResource ManropeFont}"
+                                       FontWeight="SemiBold"
+                                       FontSize="16"
+                                       Foreground="{StaticResource OnSurface}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Text="The default warehouse will be used for all new labels and print jobs."
+                                   FontSize="13"
+                                   Foreground="{StaticResource OnSurfaceVariant}"
+                                   TextWrapping="Wrap"/>
+
+                        <!-- Loading indicator -->
+                        <TextBlock IsVisible="{Binding IsLoading}"
+                                   Text="Loading warehouses…"
+                                   FontSize="13"
+                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+
+                        <!-- Warehouse ComboBox -->
+                        <ComboBox IsVisible="{Binding !IsLoading}"
+                                  ItemsSource="{Binding Warehouses}"
+                                  SelectedItem="{Binding SelectedWarehouse}"
+                                  HorizontalAlignment="Stretch"
+                                  Padding="12,10"
+                                  CornerRadius="8">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:CompileBindings="False">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <TextBlock Text="&#xe4e9;"
+                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                   Foreground="{StaticResource Primary}"
+                                                   FontSize="16"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Name}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <!-- Error / status message -->
+                        <Border IsVisible="{Binding HasError}"
+                                Background="#FEF2F2"
+                                CornerRadius="6"
+                                Padding="12,8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="&#xe000;"
+                                           FontFamily="{StaticResource MaterialIcons}"
+                                           Foreground="#DC2626"
+                                           FontSize="16"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding StatusMessage}"
+                                           Foreground="#DC2626"
+                                           FontSize="13"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock IsVisible="{Binding !HasError}"
+                                   Text="{Binding StatusMessage}"
+                                   Foreground="#16A34A"
+                                   FontSize="13"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Save button -->
+                <Button Command="{Binding SaveCommand}"
+                        IsEnabled="{Binding !IsLoading}"
+                        HorizontalAlignment="Left"
+                        Background="{StaticResource Primary}"
+                        Foreground="{StaticResource OnPrimary}"
+                        Padding="28,12"
+                        CornerRadius="8"
+                        FontWeight="SemiBold">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="&#xe161;"
+                                   FontFamily="{StaticResource MaterialIcons}"
+                                   FontSize="18"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Save Settings"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

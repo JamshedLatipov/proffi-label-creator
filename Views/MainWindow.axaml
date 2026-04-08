@@ -70,6 +70,12 @@
                                 <TextBlock Text="Print Settings" Foreground="{StaticResource OnSurfaceVariant}"/>
                             </StackPanel>
                         </Button>
+                        <Button Command="{Binding NavigateToAppSettingsCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="&#xe4e9;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="Settings" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </StackPanel>
 
@@ -105,6 +111,24 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                        <!-- Default Warehouse chip (shown when a warehouse is selected) -->
+                        <Border IsVisible="{Binding HasDefaultWarehouse}"
+                                Background="{StaticResource PrimaryContainer}"
+                                CornerRadius="16"
+                                Padding="10,4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="&#xe4e9;"
+                                           FontFamily="{StaticResource MaterialIcons}"
+                                           Foreground="{StaticResource OnPrimaryContainer}"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding DefaultWarehouseName}"
+                                           Foreground="{StaticResource OnPrimaryContainer}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,16,0">
                             <TextBlock Text="&#xe8f4;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
                             <TextBlock Text="&#xe889;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>

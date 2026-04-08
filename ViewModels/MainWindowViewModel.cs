@@ -6,11 +6,13 @@ namespace LabelStudio.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly ISettingsService _settingsService;
+    private readonly ISettingsService  _settingsService;
+    private readonly IWarehouseService _warehouseService;
 
-    public MainWindowViewModel(ISettingsService settingsService)
+    public MainWindowViewModel(ISettingsService settingsService, IWarehouseService warehouseService)
     {
-        _settingsService = settingsService;
+        _settingsService  = settingsService;
+        _warehouseService = warehouseService;
     }
 
     // ── Auth state ──────────────────────────────────────────────────────────
@@ -45,6 +47,12 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>Asterisk shown in toolbar when there are unsaved changes.</summary>
     public string IsDirtyIndicator =>
         CurrentContent is EditorViewModel { IsDirty: true } ? " *" : string.Empty;
+
+    /// <summary>Name of the currently saved default warehouse (shown in toolbar).</summary>
+    public string DefaultWarehouseName => _settingsService.DefaultWarehouseName;
+
+    /// <summary>True when a default warehouse has been selected.</summary>
+    public bool HasDefaultWarehouse => !string.IsNullOrWhiteSpace(_settingsService.DefaultWarehouseName);
 
     [RelayCommand]
     private void NavigateToTemplates()
@@ -83,6 +91,19 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void NavigateToPrinterProfiles()
         => CurrentContent = new PrinterProfilesViewModel();
+
+    [RelayCommand]
+    private void NavigateToAppSettings()
+    {
+        var vm = new AppSettingsViewModel(_settingsService, _warehouseService);
+        vm.BackRequested += (_, _) => CurrentContent = new TemplatesViewModel();
+        vm.Saved += (_, _) =>
+        {
+            OnPropertyChanged(nameof(DefaultWarehouseName));
+            OnPropertyChanged(nameof(HasDefaultWarehouse));
+        };
+        CurrentContent = vm;
+    }
 
     /// <summary>Saves the current project if the editor is open.</summary>
     [RelayCommand]

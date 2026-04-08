@@ -8,6 +8,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using ZXing;
+using ZXing.Common;
+using ZXing.Rendering;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
@@ -29,6 +33,10 @@ public partial class PrintPreviewViewModel : ViewModelBase
     [ObservableProperty] private string _articleInput = string.Empty;
     [ObservableProperty] private bool   _isLookingUp;
 
+    // Autocomplete suggestions ("like" list shown when no exact match)
+    [ObservableProperty] private bool _hasSuggestions;
+    public ObservableCollection<ProductSuggestion> Suggestions { get; } = [];
+
     // found product display
     [ObservableProperty] private bool   _hasProduct;
     [ObservableProperty] private string _productName     = string.Empty;
@@ -36,6 +44,15 @@ public partial class PrintPreviewViewModel : ViewModelBase
     [ObservableProperty] private string _productPrice    = string.Empty;
     [ObservableProperty] private string _productCategory = string.Empty;
     [ObservableProperty] private string _lookupError     = string.Empty;
+
+    partial void OnArticleInputChanged(string value)
+    {
+        // Clear stale state when user starts typing again
+        HasProduct     = false;
+        HasSuggestions = false;
+        LookupError    = string.Empty;
+        Suggestions.Clear();
+    }
 
     // ── Print state ────────────────────────────────────────────────────
     [ObservableProperty] private ObservableCollection<string> _printers = [];
@@ -56,6 +73,7 @@ public partial class PrintPreviewViewModel : ViewModelBase
         OnPropertyChanged(nameof(PreviewSafeWidth));
         OnPropertyChanged(nameof(PreviewSafeHeight));
         OnPropertyChanged(nameof(HasMargin));
+        OnPropertyChanged(nameof(ShowMarginGuide));
     }
 
     public string MarginMmLabel    => $"{_marginMm:0.#}mm";
@@ -63,6 +81,9 @@ public partial class PrintPreviewViewModel : ViewModelBase
     public double PreviewSafeWidth  => Math.Max(0, Editor.CanvasWidth  - 2 * MarginPx);
     public double PreviewSafeHeight => Math.Max(0, Editor.CanvasHeight - 2 * MarginPx);
     public bool   HasMargin        => _marginMm > 0;
+    /// <summary>Only true when the safe-area rectangle has positive dimensions.
+    /// Guards against a Skia AccessViolationException from dashed-stroke on a zero-size shape.</summary>
+    public bool   ShowMarginGuide  => HasMargin && PreviewSafeWidth > 1 && PreviewSafeHeight > 1;
 
     public PrintPreviewViewModel(EditorViewModel editor, ISettingsService settings)
     {
@@ -78,29 +99,30 @@ public partial class PrintPreviewViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(ArticleInput)) return;
 
-        LookupError  = string.Empty;
-        HasProduct   = false;
-        IsLookingUp  = true;
+        LookupError    = string.Empty;
+        HasProduct     = false;
+        HasSuggestions = false;
+        Suggestions.Clear();
+        IsLookingUp    = true;
         _resolvedFields.Clear();
 
         try
         {
-            var baseUrl = _settings.BackendUrl;
+            var baseUrl = _settings.BackendUrl.TrimEnd('/');
             if (string.IsNullOrWhiteSpace(baseUrl))
             {
                 LookupError = "Backend URL not configured. Open Connection Settings.";
                 return;
             }
-            if (!baseUrl.EndsWith("/")) baseUrl += "/";
 
-            var url = $"{baseUrl}cashes/product/get/?barcode={Uri.EscapeDataString(ArticleInput.Trim())}";
+            var url = $"{baseUrl}/products/autocomplete/?q={Uri.EscapeDataString(ArticleInput.Trim())}&page=1";
 
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             if (!string.IsNullOrWhiteSpace(_settings.AuthToken))
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.AuthToken);
 
             var response = await _http.SendAsync(request);
-            var body     = await response.Content.ReadAsStringAsync();
+            var rawBody  = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
@@ -108,59 +130,47 @@ public partial class PrintPreviewViewModel : ViewModelBase
                 return;
             }
 
-            using var doc  = JsonDocument.Parse(body);
+            using var doc  = JsonDocument.Parse(rawBody);
             var root = doc.RootElement;
 
-            if (!root.TryGetProperty("status", out var statusEl) || statusEl.GetInt32() != 0)
+            if (!root.TryGetProperty("body", out var bodyEl) ||
+                bodyEl.ValueKind != JsonValueKind.Object)
             {
                 LookupError = "Product not found";
                 return;
             }
 
-            if (!root.TryGetProperty("body", out var bodyEl) ||
-                bodyEl.ValueKind != JsonValueKind.Object)
+            // ── Exact match → apply immediately ──────────────────────
+            if (bodyEl.TryGetProperty("match", out var matchEl) &&
+                matchEl.ValueKind == JsonValueKind.Object)
             {
-                LookupError = "Unexpected response format";
+                var id   = matchEl.TryGetProperty("id",   out var mid)  ? mid.GetString()  ?? "" : "";
+                var name = matchEl.TryGetProperty("name", out var mname) ? mname.GetString() ?? "" : "";
+                ApplyProduct(id, name);
                 return;
             }
 
-            // ── Parse fields ─────────────────────────────────────────
-            decimal price = 0m;
-            if (bodyEl.TryGetProperty("sell_price", out var priceEl) &&
-                priceEl.ValueKind == JsonValueKind.Number)
-                price = priceEl.GetDecimal();
-
-            string name     = string.Empty;
-            string article  = string.Empty;
-            string category = string.Empty;
-
-            if (bodyEl.TryGetProperty("product", out var prodEl) &&
-                prodEl.ValueKind == JsonValueKind.Object)
+            // ── No exact match → show "like" suggestions ─────────────
+            if (bodyEl.TryGetProperty("like", out var likeEl) &&
+                likeEl.ValueKind == JsonValueKind.Array)
             {
-                name    = prodEl.TryGetProperty("name",    out var n) ? n.GetString() ?? "" : "";
-                article = prodEl.TryGetProperty("article", out var a) ? a.GetString() ?? "" : "";
+                foreach (var item in likeEl.EnumerateArray())
+                {
+                    var id   = item.TryGetProperty("id",   out var sid)   ? sid.GetString()   ?? "" : "";
+                    var name = item.TryGetProperty("name", out var sname)  ? sname.GetString()  ?? "" : "";
+                    if (!string.IsNullOrEmpty(id))
+                        Suggestions.Add(new ProductSuggestion(id, name));
+                }
 
-                if (prodEl.TryGetProperty("category", out var catEl) &&
-                    catEl.ValueKind == JsonValueKind.Object)
-                    category = catEl.TryGetProperty("name", out var cn) ? cn.GetString() ?? "" : "";
+                if (Suggestions.Count > 0)
+                    HasSuggestions = true;
+                else
+                    LookupError = "No products found";
             }
-
-            // ── Fill resolved fields ─────────────────────────────────
-            _resolvedFields["name"]         = name;
-            _resolvedFields["product_name"] = name;
-            _resolvedFields["article"]      = article;
-            _resolvedFields["sku"]          = article;
-            _resolvedFields["price"]        = price.ToString("0.##");
-            _resolvedFields["sell_price"]   = price.ToString("0.##");
-            _resolvedFields["barcode"]      = ArticleInput.Trim();
-            _resolvedFields["category"]     = category;
-
-            // ── Update display properties ───────────────────────────
-            ProductName     = name;
-            ProductArticle  = article;
-            ProductPrice    = $"{price:0.##}";
-            ProductCategory = category;
-            HasProduct      = true;
+            else
+            {
+                LookupError = "No products found";
+            }
         }
         catch (HttpRequestException ex)
         {
@@ -178,6 +188,28 @@ public partial class PrintPreviewViewModel : ViewModelBase
         {
             IsLookingUp = false;
         }
+    }
+
+    [RelayCommand]
+    private void SelectSuggestion(ProductSuggestion suggestion)
+    {
+        ApplyProduct(suggestion.Id, suggestion.Name);
+        HasSuggestions = false;
+        Suggestions.Clear();
+    }
+
+    private void ApplyProduct(string id, string name)
+    {
+        _resolvedFields["name"]         = name;
+        _resolvedFields["product_name"] = name;
+        _resolvedFields["id"]           = id;
+        _resolvedFields["barcode"]      = ArticleInput.Trim();
+
+        ProductName     = name;
+        ProductArticle  = id;
+        ProductPrice    = string.Empty;
+        ProductCategory = string.Empty;
+        HasProduct      = true;
     }
 
     /// <summary>Resolves a label element's display content, substituting dynamic field keys.</summary>
@@ -315,7 +347,7 @@ public partial class PrintPreviewViewModel : ViewModelBase
                     BmpDrawBarcode(g, m, x, y, mw, mh);
                     break;
                 case ElementKind.QrCode:
-                    BmpDrawQr(g, x, y, mw, mh);
+                    BmpDrawQr(g, m, x, y, mw, mh);
                     break;
                 case ElementKind.Rectangle:
                     using (var pen = new Pen(Color.Black, Math.Max(1f, 0.3f * sx)))
@@ -363,27 +395,94 @@ public partial class PrintPreviewViewModel : ViewModelBase
     }
 
     private static void BmpDrawBarcode(Graphics g, LabelElement m,
-                                       float x, float y, float w, float h)
+                                        float x, float y, float w, float h)
     {
-        g.FillRectangle(Brushes.Black, x, y, w, h);
-        float barH = h * 0.75f;
-        float barW = w / 30f;
-        for (int i = 1; i < 30; i += 2)
-            g.FillRectangle(Brushes.White, x + i * barW, y + 1f, barW, barH);
-        using var font = new Font("Courier New", Math.Max(1f, h * 0.2f),
-                                  FontStyle.Regular, GraphicsUnit.Pixel);
-        var sf = new StringFormat { Alignment = StringAlignment.Center };
-        g.DrawString(m.BarcodeValue, font, Brushes.White,
-                     new RectangleF(x, y + barH, w, h - barH), sf);
+        try
+        {
+            string val   = string.IsNullOrWhiteSpace(m.BarcodeValue) ? "0000000000000" : m.BarcodeValue;
+            float  textH = Math.Max(8f, h * 0.18f);
+            float  barcH = h - textH;
+
+            var writer = new BarcodeWriterPixelData
+            {
+                Format  = BarcodeFormat.CODE_128,
+                Options = new EncodingOptions
+                {
+                    Width  = (int)Math.Max(1, w),
+                    Height = (int)Math.Max(1, barcH),
+                    Margin = 0,
+                    PureBarcode = true
+                }
+            };
+            var pd  = writer.Write(val);
+            using var bmp = PixelDataToBitmap(pd);
+            g.DrawImage(bmp, x, y, w, barcH);
+
+            // Human-readable digits below the bars.
+            float fontSize = Math.Max(6f, textH * 0.7f);
+            using var font = new Font("Courier New", fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+            var sf = new StringFormat { Alignment = StringAlignment.Center, Trimming = StringTrimming.None };
+            g.DrawString(val, font, Brushes.Black, new RectangleF(x, y + barcH, w, textH), sf);
+        }
+        catch
+        {
+            g.FillRectangle(Brushes.LightGray, x, y, w, h);
+        }
     }
 
-    private static void BmpDrawQr(Graphics g, float x, float y, float w, float h)
+    private static void BmpDrawQr(Graphics g, LabelElement m,
+                                   float x, float y, float w, float h)
     {
-        g.FillRectangle(Brushes.Black, x, y, w, h);
-        g.FillRectangle(Brushes.White, x + 2, y + 2, w - 4, h - 4);
-        float sz = Math.Min(w, h) * 0.25f;
-        g.FillRectangle(Brushes.Black, x + 2,          y + 2,          sz, sz);
-        g.FillRectangle(Brushes.Black, x + w - sz - 2, y + 2,          sz, sz);
-        g.FillRectangle(Brushes.Black, x + 2,          y + h - sz - 2, sz, sz);
+        try
+        {
+            int sz = (int)Math.Max(1, Math.Min(w, h));
+            var writer = new BarcodeWriterPixelData
+            {
+                Format  = BarcodeFormat.QR_CODE,
+                Options = new EncodingOptions
+                {
+                    Width  = sz,
+                    Height = sz,
+                    Margin = 0
+                }
+            };
+            var pd  = writer.Write(string.IsNullOrWhiteSpace(m.Content) ? "?" : m.Content);
+            using var bmp = PixelDataToBitmap(pd);
+            g.DrawImage(bmp, x, y, w, h);
+        }
+        catch
+        {
+            g.FillRectangle(Brushes.LightGray, x, y, w, h);
+        }
     }
+
+    private static Bitmap PixelDataToBitmap(PixelData pd)
+    {
+        var bmp   = new Bitmap(pd.Width, pd.Height, PixelFormat.Format32bppArgb);
+        var bdata = bmp.LockBits(new Rectangle(0, 0, pd.Width, pd.Height),
+                                  ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+        try
+        {
+            var raw = (object)pd.Pixels;
+            if (raw is byte[] bytes)
+                for (int row = 0; row < pd.Height; row++)
+                    Marshal.Copy(bytes, row * pd.Width * 4,
+                                 IntPtr.Add(bdata.Scan0, row * bdata.Stride), pd.Width * 4);
+            else if (raw is int[] ints)
+                for (int row = 0; row < pd.Height; row++)
+                    Marshal.Copy(ints, row * pd.Width,
+                                 IntPtr.Add(bdata.Scan0, row * bdata.Stride), pd.Width);
+        }
+        finally { bmp.UnlockBits(bdata); }
+        return bmp;
+    }
+}
+
+/// <summary>One item in the autocomplete "like" list.</summary>
+public sealed class ProductSuggestion
+{
+    public string Id   { get; }
+    public string Name { get; }
+    public ProductSuggestion(string id, string name) { Id = id; Name = name; }
+    public override string ToString() => Name;
 }

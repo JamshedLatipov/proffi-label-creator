@@ -266,46 +266,19 @@
                                                                Margin="4,2" TextWrapping="Wrap"/>
                                                 </Border>
 
-                                                <!-- Barcode placeholder -->
-                                                <Border x:CompileBindings="False"
-                                                        IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
-                                                        Background="{StaticResource OnSurface}"
-                                                        Margin="4,4">
-                                                    <StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Spacing="1"
-                                                                    Height="28" Margin="4,4,4,2">
-                                                            <Border Width="3" Background="White"/>
-                                                            <Border Width="2" Background="White"/>
-                                                            <Border Width="5" Background="White"/>
-                                                            <Border Width="3" Background="White"/>
-                                                            <Border Width="8" Background="White"/>
-                                                            <Border Width="3" Background="White"/>
-                                                            <Border Width="2" Background="White"/>
-                                                            <Border Width="5" Background="White"/>
-                                                            <Border Width="3" Background="White"/>
-                                                            <Border Width="7" Background="White"/>
-                                                            <Border Width="3" Background="White"/>
-                                                            <Border Width="2" Background="White"/>
-                                                        </StackPanel>
-                                                        <TextBlock Text="{Binding BarcodeValue}"
-                                                                   FontFamily="Consolas,Monospace"
-                                                                   FontSize="6" LetterSpacing="2"
-                                                                   Foreground="White"
-                                                                   HorizontalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </Border>
+                                                <!-- Barcode -->
+                                                <Image x:CompileBindings="False"
+                                                       IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
+                                                       Source="{Binding BarcodeSource}"
+                                                       Stretch="Fill"/>
 
-                                                <!-- QR Code placeholder -->
-                                                <Grid x:CompileBindings="False"
-                                                      IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
-                                                      Margin="4">
-                                                    <Border Background="{StaticResource OnSurface}"/>
-                                                    <TextBlock Text="&#xe00a;"
-                                                               FontFamily="{StaticResource MaterialIcons}"
-                                                               FontSize="28" Foreground="White"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
-                                                </Grid>
+                                                <!-- QR Code -->
+                                                <Image x:CompileBindings="False"
+                                                       IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
+                                                       Source="{Binding QrSource}"
+                                                       Stretch="Uniform"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
 
                                                 <!-- Rectangle -->
                                                 <Border x:CompileBindings="False"
@@ -534,6 +507,18 @@
                                        Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
                             <TextBox Text="{Binding BarcodeValue}"
                                      FontFamily="Consolas,Monospace"
+                                     Background="{StaticResource SurfaceContainerLowest}"
+                                     BorderBrush="{StaticResource OutlineVariant}"
+                                     CornerRadius="6" Padding="8,6" FontSize="12"/>
+                        </StackPanel>
+
+                        <!-- QR value -->
+                        <StackPanel Spacing="6"
+                                    IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}">
+                            <TextBlock Text="QR VALUE" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBox Text="{Binding Content}"
+                                     AcceptsReturn="False"
                                      Background="{StaticResource SurfaceContainerLowest}"
                                      BorderBrush="{StaticResource OutlineVariant}"
                                      CornerRadius="6" Padding="8,6" FontSize="12"/>

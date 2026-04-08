@@ -18,10 +18,11 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var settingsService = new SettingsService();
-            var authService = new AuthService(settingsService);
+            var settingsService  = new SettingsService();
+            var authService      = new AuthService(settingsService);
+            var warehouseService = new WarehouseService(settingsService);
 
-            var mainVm = new MainWindowViewModel(settingsService);
+            var mainVm = new MainWindowViewModel(settingsService, warehouseService);
 
             void ShowLogin()
             {

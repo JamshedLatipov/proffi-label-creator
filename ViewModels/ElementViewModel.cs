@@ -3,7 +3,13 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
+using System;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
+using ZXing;
+using ZXing.Common;
+using ZXing.Rendering;
 
 namespace LabelStudio.ViewModels;
 
@@ -31,8 +37,33 @@ public partial class ElementViewModel : ViewModelBase
 
     partial void OnXMmChanged(double v)      { Left   = v * MmToPx; Model.X      = v; _editor.MarkDirty(); }
     partial void OnYMmChanged(double v)      { Top    = v * MmToPx; Model.Y      = v; _editor.MarkDirty(); }
-    partial void OnWidthMmChanged(double v)  { Width  = v * MmToPx; Model.Width  = v; _editor.MarkDirty(); }
-    partial void OnHeightMmChanged(double v) { Height = v * MmToPx; Model.Height = v; _editor.MarkDirty(); }
+    partial void OnWidthMmChanged(double v)
+    {
+        Width  = v * MmToPx; Model.Width  = v; _editor.MarkDirty();
+        RegenerateBarQr();
+    }
+    partial void OnHeightMmChanged(double v)
+    {
+        Height = v * MmToPx; Model.Height = v; _editor.MarkDirty();
+        RegenerateBarQr();
+    }
+
+    private void RegenerateBarQr()
+    {
+        int w = Math.Max(1, (int)_width); int h = Math.Max(1, (int)_height);
+        if (Model.Kind == ElementKind.Barcode)
+        {
+            _cachedBarcodeSource?.Dispose();
+            _cachedBarcodeSource = RenderBarcode(_barcodeValue, BarcodeFormat.CODE_128, w, h);
+            OnPropertyChanged(nameof(BarcodeSource));
+        }
+        else if (Model.Kind == ElementKind.QrCode)
+        {
+            _cachedQrSource?.Dispose();
+            _cachedQrSource = RenderBarcode(_content, BarcodeFormat.QR_CODE, w, h);
+            OnPropertyChanged(nameof(QrSource));
+        }
+    }
 
     // ── Visual state ───────────────────────────────────────────────────
     [ObservableProperty] private bool _isSelected;
@@ -62,11 +93,86 @@ public partial class ElementViewModel : ViewModelBase
 
     // Bitmap cached here so Skia never GC's the native backing while rendering.
     private Bitmap? _cachedImageSource;
+    private Bitmap? _cachedBarcodeSource;
+    private Bitmap? _cachedQrSource;
 
-    public Bitmap? ImageSource => _cachedImageSource;
+    public Bitmap? ImageSource   => _cachedImageSource;
+    public Bitmap? BarcodeSource => _cachedBarcodeSource;
+    public Bitmap? QrSource      => _cachedQrSource;
 
     private static Bitmap? LoadBitmap(string? path) =>
         !string.IsNullOrEmpty(path) && File.Exists(path) ? new Bitmap(path) : null;
+
+    /// <summary>Renders a ZXing barcode/QR to an Avalonia Bitmap.
+    /// Combined bitmap is exactly w×h so Stretch="Fill" gives 1:1 mapping.</summary>
+    private static Bitmap? RenderBarcode(string value, BarcodeFormat format, int w, int h)
+    {
+        if (string.IsNullOrWhiteSpace(value) || w < 1 || h < 1) return null;
+        try
+        {
+            bool isQr  = format == BarcodeFormat.QR_CODE;
+            int  textH = isQr ? 0 : Math.Max(10, h / 5);
+            int  barcH = h - textH;
+
+            var writer = new BarcodeWriterPixelData
+            {
+                Format  = format,
+                Options = new EncodingOptions { Width = w, Height = barcH, Margin = 0, PureBarcode = true }
+            };
+            var pd = writer.Write(value);
+
+            // Always allocate combined at exactly w×h so Fill-stretch is 1:1.
+            using var combined = new System.Drawing.Bitmap(w, h,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using var g = System.Drawing.Graphics.FromImage(combined);
+            g.Clear(System.Drawing.Color.White);
+
+            using (var barBmp = PixelDataToSDBitmap(pd))
+                g.DrawImage(barBmp, 0, 0, w, barcH);  // stretch bars to exact width
+
+            if (textH > 0)
+            {
+                float fontSize = Math.Max(6f, textH * 0.65f);
+                using var font = new System.Drawing.Font("Courier New", fontSize,
+                    System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+                var sf = new System.Drawing.StringFormat
+                    { Alignment = System.Drawing.StringAlignment.Center,
+                      Trimming  = System.Drawing.StringTrimming.None };
+                g.DrawString(value, font, System.Drawing.Brushes.Black,
+                    new System.Drawing.RectangleF(0, barcH, w, textH), sf);
+            }
+
+            using var ms = new MemoryStream();
+            combined.Save(ms, ImageFormat.Png);
+            ms.Position = 0;
+            return new Bitmap(ms);
+        }
+        catch { return null; }
+    }
+
+    private static System.Drawing.Bitmap PixelDataToSDBitmap(PixelData pd)
+    {
+        var bmp   = new System.Drawing.Bitmap(pd.Width, pd.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        var bdata = bmp.LockBits(new System.Drawing.Rectangle(0, 0, pd.Width, pd.Height),
+                                  System.Drawing.Imaging.ImageLockMode.WriteOnly,
+                                  System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        try
+        {
+            // ZXing.Rendering.PixelData.Pixels may be byte[] or int[] depending on version.
+            // Pattern-match at runtime to copy correctly either way.
+            var raw = (object)pd.Pixels;
+            if (raw is byte[] bytes)
+                for (int row = 0; row < pd.Height; row++)
+                    Marshal.Copy(bytes, row * pd.Width * 4,
+                                 IntPtr.Add(bdata.Scan0, row * bdata.Stride), pd.Width * 4);
+            else if (raw is int[] ints)
+                for (int row = 0; row < pd.Height; row++)
+                    Marshal.Copy(ints, row * pd.Width,
+                                 IntPtr.Add(bdata.Scan0, row * bdata.Stride), pd.Width);
+        }
+        finally { bmp.UnlockBits(bdata); }
+        return bmp;
+    }
 
     /// <summary>Resolves the stored font name to a proper FontFamily, including embedded avares:// fonts.</summary>
     public TextDecorationCollection? TextDecorationsList
@@ -141,7 +247,8 @@ public partial class ElementViewModel : ViewModelBase
         _barcodeValue = model.BarcodeValue;
         _imagePath           = model.ImagePath;
         _cachedImageSource   = LoadBitmap(model.ImagePath);
-    }
+        _cachedBarcodeSource = RenderBarcode(model.BarcodeValue, BarcodeFormat.CODE_128, (int)_width, (int)_height);
+        _cachedQrSource      = RenderBarcode(model.Content, BarcodeFormat.QR_CODE, (int)_width, (int)_height);    }
 
     // ── Sync px → mm back to model (called after drag) ─────────────────
     public void SyncPosition()
@@ -159,7 +266,18 @@ public partial class ElementViewModel : ViewModelBase
         _editor.MarkDirty();
     }
 
-    partial void OnContentChanged(string value)      { Model.Content     = value; _editor.MarkDirty(); }
+    partial void OnContentChanged(string value)
+    {
+        Model.Content = value;
+        _editor.MarkDirty();
+        // Refresh QR if this is a QR element
+        if (Model.Kind == ElementKind.QrCode)
+        {
+            _cachedQrSource?.Dispose();
+            _cachedQrSource = RenderBarcode(value, BarcodeFormat.QR_CODE, Math.Max(1,(int)_width), Math.Max(1,(int)_height));
+            OnPropertyChanged(nameof(QrSource));
+        }
+    }
     partial void OnFontFamilyChanged(string value)   { Model.FontFamily  = value; _editor.MarkDirty(); }
     partial void OnFontSizeChanged(double value)     { Model.FontSize    = value; _editor.MarkDirty(); }
     partial void OnBoldChanged(bool value)              { Model.Bold           = value; _editor.MarkDirty(); }
@@ -168,7 +286,14 @@ public partial class ElementViewModel : ViewModelBase
     partial void OnStrikethroughChanged(bool value)    { Model.Strikethrough  = value; _editor.MarkDirty(); }
     partial void OnTextBackgroundChanged(string value) { Model.TextBackground = value; _editor.MarkDirty(); }
     partial void OnColorChanged(string value)          { Model.Color          = value; _editor.MarkDirty(); }
-    partial void OnBarcodeValueChanged(string value) { Model.BarcodeValue = value; _editor.MarkDirty(); }
+    partial void OnBarcodeValueChanged(string value)
+    {
+        Model.BarcodeValue = value;
+        _editor.MarkDirty();
+        _cachedBarcodeSource?.Dispose();
+        _cachedBarcodeSource = RenderBarcode(value, BarcodeFormat.CODE_128, Math.Max(1,(int)_width), Math.Max(1,(int)_height));
+        OnPropertyChanged(nameof(BarcodeSource));
+    }
     partial void OnImagePathChanged(string value)
     {
         _cachedImageSource?.Dispose();

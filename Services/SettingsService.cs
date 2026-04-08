@@ -30,6 +30,18 @@ public class SettingsService : ISettingsService
         set => _data.AuthToken = value;
     }
 
+    public string DefaultWarehouseId
+    {
+        get => _data.DefaultWarehouseId;
+        set => _data.DefaultWarehouseId = value;
+    }
+
+    public string DefaultWarehouseName
+    {
+        get => _data.DefaultWarehouseName;
+        set => _data.DefaultWarehouseName = value;
+    }
+
     public void Save()
     {
         var dir = Path.GetDirectoryName(SettingsPath)!;
@@ -50,7 +62,9 @@ public class SettingsService : ISettingsService
 
     private sealed class SettingsData
     {
-        public string BackendUrl { get; set; } = string.Empty;
-        public string AuthToken { get; set; } = string.Empty;
+        public string BackendUrl            { get; set; } = string.Empty;
+        public string AuthToken             { get; set; } = string.Empty;
+        public string DefaultWarehouseId    { get; set; } = string.Empty;
+        public string DefaultWarehouseName  { get; set; } = string.Empty;
     }
 }

@@ -77,44 +77,17 @@
                                                                    Margin="4,2" TextWrapping="Wrap"/>
                                                     </Border>
 
-                                                    <!-- Barcode placeholder -->
-                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
-                                                            Background="{StaticResource OnSurface}"
-                                                            Margin="4,4">
-                                                        <StackPanel>
-                                                            <StackPanel Orientation="Horizontal" Spacing="1"
-                                                                        Height="28" Margin="4,4,4,2">
-                                                                <Border Width="3" Background="White"/>
-                                                                <Border Width="2" Background="White"/>
-                                                                <Border Width="5" Background="White"/>
-                                                                <Border Width="3" Background="White"/>
-                                                                <Border Width="8" Background="White"/>
-                                                                <Border Width="3" Background="White"/>
-                                                                <Border Width="2" Background="White"/>
-                                                                <Border Width="5" Background="White"/>
-                                                                <Border Width="3" Background="White"/>
-                                                                <Border Width="7" Background="White"/>
-                                                                <Border Width="3" Background="White"/>
-                                                                <Border Width="2" Background="White"/>
-                                                            </StackPanel>
-                                                            <TextBlock Text="{Binding BarcodeValue}"
-                                                                       FontFamily="Consolas,Monospace"
-                                                                       FontSize="6" LetterSpacing="2"
-                                                                       Foreground="White"
-                                                                       HorizontalAlignment="Center"/>
-                                                        </StackPanel>
-                                                    </Border>
+                                                    <!-- Barcode -->
+                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
+                                                           Source="{Binding BarcodeSource}"
+                                                           Stretch="Fill"/>
 
-                                                    <!-- QR Code placeholder -->
-                                                    <Grid IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
-                                                          Margin="4">
-                                                        <Border Background="{StaticResource OnSurface}"/>
-                                                        <TextBlock Text="&#xe00a;"
-                                                                   FontFamily="{StaticResource MaterialIcons}"
-                                                                   FontSize="28" Foreground="White"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center"/>
-                                                    </Grid>
+                                                    <!-- QR Code -->
+                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
+                                                           Source="{Binding QrSource}"
+                                                           Stretch="Uniform"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
 
                                                     <!-- Rectangle -->
                                                     <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsRect}}"
@@ -132,7 +105,7 @@
                                 </ItemsControl>
 
                                 <!-- Safe-area margin guide -->
-                                <Rectangle IsVisible="{Binding HasMargin, x:CompileBindings=False}"
+                                <Rectangle IsVisible="{Binding ShowMarginGuide, x:CompileBindings=False}"
                                            IsHitTestVisible="False"
                                            Canvas.Left="{Binding MarginPx, x:CompileBindings=False}"
                                            Canvas.Top="{Binding MarginPx, x:CompileBindings=False}"
@@ -162,11 +135,11 @@
                             <TextBlock Text="PRODUCT LOOKUP" FontSize="10" FontWeight="Bold"
                                        Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
 
-                            <!-- Barcode / article input -->
+                            <!-- Search input -->
                             <Grid ColumnDefinitions="*,40">
                                 <TextBox Grid.Column="0"
                                          Text="{Binding ArticleInput, Mode=TwoWay}"
-                                         Watermark="Article or barcode"
+                                         Watermark="Article or product name"
                                          IsEnabled="{Binding !IsLookingUp}"
                                          Background="{StaticResource SurfaceContainerLowest}"
                                          BorderThickness="0"
@@ -192,7 +165,7 @@
                             </Grid>
 
                             <!-- Loading indicator -->
-                            <TextBlock Text="Looking up..."
+                            <TextBlock Text="Searching…"
                                        FontSize="11"
                                        Foreground="{StaticResource OnSurfaceVariant}"
                                        IsVisible="{Binding IsLookingUp}"/>
@@ -208,7 +181,44 @@
                                            TextWrapping="Wrap"/>
                             </Border>
 
-                            <!-- Found product info -->
+                            <!-- Suggestion list (no exact match found) -->
+                            <StackPanel IsVisible="{Binding HasSuggestions}" Spacing="4">
+                                <TextBlock Text="Multiple matches — select one:"
+                                           FontSize="11"
+                                           Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <Border Background="{StaticResource SurfaceContainerLowest}"
+                                        CornerRadius="8"
+                                        Padding="4">
+                                    <ItemsControl ItemsSource="{Binding Suggestions}"
+                                                  x:CompileBindings="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:CompileBindings="False">
+                                                <Button Background="Transparent"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Left"
+                                                        Padding="10,8"
+                                                        CornerRadius="6"
+                                                        Command="{Binding $parent[UserControl].DataContext.SelectSuggestionCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock Text="&#xe4e9;"
+                                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                                   Foreground="{StaticResource OnSurfaceVariant}"
+                                                                   FontSize="14"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   FontSize="12"
+                                                                   VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Found product info (exact match or suggestion selected) -->
                             <Border Background="#F0FDF4"
                                     BorderBrush="#BBF7D0"
                                     BorderThickness="1"
@@ -216,43 +226,22 @@
                                     Padding="12"
                                     IsVisible="{Binding HasProduct}">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="{Binding ProductName}"
-                                               FontWeight="Bold"
-                                               FontSize="13"
-                                               Foreground="#166534"
-                                               TextWrapping="Wrap"/>
-                                    <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
-                                        <TextBlock Grid.Column="0" Text="Article: "
-                                                   FontSize="11"
-                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding ProductArticle}"
-                                                   FontSize="11"
-                                                   Foreground="{StaticResource OnSurface}"
-                                                   FontWeight="Medium"/>
-                                    </Grid>
-                                    <Grid ColumnDefinitions="Auto,*">
-                                        <TextBlock Grid.Column="0" Text="Price: "
-                                                   FontSize="11"
-                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding ProductPrice}"
-                                                   FontSize="11"
-                                                   Foreground="{StaticResource OnSurface}"
-                                                   FontWeight="Medium"/>
-                                    </Grid>
-                                    <Grid ColumnDefinitions="Auto,*">
-                                        <TextBlock Grid.Column="0" Text="Category: "
-                                                   FontSize="11"
-                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding ProductCategory}"
-                                                   FontSize="11"
-                                                   Foreground="{StaticResource OnSurface}"
-                                                   FontWeight="Medium"
-                                                   TextWrapping="Wrap"/>
-                                    </Grid>
-                                    <TextBlock Text="Dynamic fields will use these values when printing."
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,4">
+                                        <TextBlock Text="&#xe876;"
+                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                   Foreground="#16A34A"
+                                                   FontSize="16"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ProductName}"
+                                                   FontWeight="Bold"
+                                                   FontSize="13"
+                                                   Foreground="#166534"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="Dynamic fields will use this product when printing."
                                                FontSize="10"
                                                Foreground="#16A34A"
-                                               Margin="0,6,0,0"
                                                TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
