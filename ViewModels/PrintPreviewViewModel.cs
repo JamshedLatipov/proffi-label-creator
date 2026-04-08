@@ -1,11 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Printing;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
+using LabelStudio.Services;
 using Microsoft.Win32;
 
 namespace LabelStudio.ViewModels;
@@ -13,7 +19,25 @@ namespace LabelStudio.ViewModels;
 public partial class PrintPreviewViewModel : ViewModelBase
 {
     private readonly EditorViewModel _editor;
+    private readonly ISettingsService _settings;
+    private readonly HttpClient _http = new();
 
+    // ── Product lookup state ───────────────────────────────────────────
+    /// <summary>Resolved dynamic-field values: key → value, e.g. "name" → "Widget Pro"</summary>
+    private readonly Dictionary<string, string> _resolvedFields = new(StringComparer.OrdinalIgnoreCase);
+
+    [ObservableProperty] private string _articleInput = string.Empty;
+    [ObservableProperty] private bool   _isLookingUp;
+
+    // found product display
+    [ObservableProperty] private bool   _hasProduct;
+    [ObservableProperty] private string _productName     = string.Empty;
+    [ObservableProperty] private string _productArticle  = string.Empty;
+    [ObservableProperty] private string _productPrice    = string.Empty;
+    [ObservableProperty] private string _productCategory = string.Empty;
+    [ObservableProperty] private string _lookupError     = string.Empty;
+
+    // ── Print state ────────────────────────────────────────────────────
     [ObservableProperty] private ObservableCollection<string> _printers = [];
     [ObservableProperty] private string? _selectedPrinter;
     [ObservableProperty] private int    _copies = 1;
@@ -40,10 +64,128 @@ public partial class PrintPreviewViewModel : ViewModelBase
     public double PreviewSafeHeight => Math.Max(0, Editor.CanvasHeight - 2 * MarginPx);
     public bool   HasMargin        => _marginMm > 0;
 
-    public PrintPreviewViewModel(EditorViewModel editor)
+    public PrintPreviewViewModel(EditorViewModel editor, ISettingsService settings)
     {
-        _editor = editor;
+        _editor   = editor;
+        _settings = settings;
         LoadPrinters();
+    }
+
+    // ── Product lookup ─────────────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task LookupProductAsync()
+    {
+        if (string.IsNullOrWhiteSpace(ArticleInput)) return;
+
+        LookupError  = string.Empty;
+        HasProduct   = false;
+        IsLookingUp  = true;
+        _resolvedFields.Clear();
+
+        try
+        {
+            var baseUrl = _settings.BackendUrl;
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                LookupError = "Backend URL not configured. Open Connection Settings.";
+                return;
+            }
+            if (!baseUrl.EndsWith("/")) baseUrl += "/";
+
+            var url = $"{baseUrl}cashes/product/get/?barcode={Uri.EscapeDataString(ArticleInput.Trim())}";
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            if (!string.IsNullOrWhiteSpace(_settings.AuthToken))
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.AuthToken);
+
+            var response = await _http.SendAsync(request);
+            var body     = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                LookupError = $"Server returned {(int)response.StatusCode}";
+                return;
+            }
+
+            using var doc  = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+
+            if (!root.TryGetProperty("status", out var statusEl) || statusEl.GetInt32() != 0)
+            {
+                LookupError = "Product not found";
+                return;
+            }
+
+            if (!root.TryGetProperty("body", out var bodyEl) ||
+                bodyEl.ValueKind != JsonValueKind.Object)
+            {
+                LookupError = "Unexpected response format";
+                return;
+            }
+
+            // ── Parse fields ─────────────────────────────────────────
+            decimal price = 0m;
+            if (bodyEl.TryGetProperty("sell_price", out var priceEl) &&
+                priceEl.ValueKind == JsonValueKind.Number)
+                price = priceEl.GetDecimal();
+
+            string name     = string.Empty;
+            string article  = string.Empty;
+            string category = string.Empty;
+
+            if (bodyEl.TryGetProperty("product", out var prodEl) &&
+                prodEl.ValueKind == JsonValueKind.Object)
+            {
+                name    = prodEl.TryGetProperty("name",    out var n) ? n.GetString() ?? "" : "";
+                article = prodEl.TryGetProperty("article", out var a) ? a.GetString() ?? "" : "";
+
+                if (prodEl.TryGetProperty("category", out var catEl) &&
+                    catEl.ValueKind == JsonValueKind.Object)
+                    category = catEl.TryGetProperty("name", out var cn) ? cn.GetString() ?? "" : "";
+            }
+
+            // ── Fill resolved fields ─────────────────────────────────
+            _resolvedFields["name"]         = name;
+            _resolvedFields["product_name"] = name;
+            _resolvedFields["article"]      = article;
+            _resolvedFields["sku"]          = article;
+            _resolvedFields["price"]        = price.ToString("0.##");
+            _resolvedFields["sell_price"]   = price.ToString("0.##");
+            _resolvedFields["barcode"]      = ArticleInput.Trim();
+            _resolvedFields["category"]     = category;
+
+            // ── Update display properties ───────────────────────────
+            ProductName     = name;
+            ProductArticle  = article;
+            ProductPrice    = $"{price:0.##}";
+            ProductCategory = category;
+            HasProduct      = true;
+        }
+        catch (HttpRequestException ex)
+        {
+            LookupError = $"Network error: {ex.Message}";
+        }
+        catch (JsonException)
+        {
+            LookupError = "Failed to parse server response";
+        }
+        catch (Exception ex)
+        {
+            LookupError = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsLookingUp = false;
+        }
+    }
+
+    /// <summary>Resolves a label element's display content, substituting dynamic field keys.</summary>
+    private string ResolveContent(LabelElement m)
+    {
+        if (m.Kind != ElementKind.DynamicField || _resolvedFields.Count == 0)
+            return m.Content;
+        return _resolvedFields.TryGetValue(m.Content, out var val) ? val : m.Content;
     }
 
     private void LoadPrinters()
@@ -167,7 +309,7 @@ public partial class PrintPreviewViewModel : ViewModelBase
             {
                 case ElementKind.Text:
                 case ElementKind.DynamicField:
-                    BmpDrawText(g, m, x, y, mw, mh, dpiX);
+                    BmpDrawText(g, m, x, y, mw, mh, dpiX, resolvedText: ResolveContent(m));
                     break;
                 case ElementKind.Barcode:
                     BmpDrawBarcode(g, m, x, y, mw, mh);
@@ -191,7 +333,8 @@ public partial class PrintPreviewViewModel : ViewModelBase
     }
 
     private static void BmpDrawText(Graphics g, LabelElement m,
-                                    float x, float y, float w, float h, float dpiX)
+                                    float x, float y, float w, float h, float dpiX,
+                                    string? resolvedText = null)
     {
         // Background fill
         if (!string.IsNullOrEmpty(m.TextBackground))
@@ -216,7 +359,7 @@ public partial class PrintPreviewViewModel : ViewModelBase
         using var brush = new SolidBrush(ColorTranslator.FromHtml(m.Color));
         // No trimming — let GDI+ wrap the text exactly as Avalonia TextWrapping="Wrap" does.
         var sf = new StringFormat { Trimming = StringTrimming.None };
-        g.DrawString(m.Content, font, brush, new RectangleF(x, y, w, h), sf);
+        g.DrawString(resolvedText ?? m.Content, font, brush, new RectangleF(x, y, w, h), sf);
     }
 
     private static void BmpDrawBarcode(Graphics g, LabelElement m,

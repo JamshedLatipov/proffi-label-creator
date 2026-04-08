@@ -14,7 +14,14 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="250,*">
+    <Panel>
+        <!-- Auth shell (login / connection settings) -->
+        <ContentControl Content="{Binding AuthContent}"
+                        IsVisible="{Binding !IsAuthenticated}"/>
+
+        <!-- Main app layout (shown after login) -->
+        <Grid ColumnDefinitions="250,*"
+              IsVisible="{Binding IsAuthenticated}">
         <!-- Sidebar -->
         <Border Grid.Column="0" Background="#f1f5f9" BorderBrush="{StaticResource OutlineVariant}" BorderThickness="0,0,1,0">
             <Grid RowDefinitions="Auto,*,Auto">
@@ -113,5 +120,6 @@
             <ContentControl Grid.Row="1" Content="{Binding CurrentContent}"/>
         </Grid>
     </Grid>
+    </Panel>
 
 </Window>

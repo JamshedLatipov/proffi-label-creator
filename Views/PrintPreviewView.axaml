@@ -156,7 +156,109 @@
 
                 <ScrollViewer Grid.Row="1">
                     <StackPanel Spacing="20">
+
+                        <!-- ── PRODUCT LOOKUP ─────────────────────────────── -->
                         <StackPanel Spacing="8">
+                            <TextBlock Text="PRODUCT LOOKUP" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+
+                            <!-- Barcode / article input -->
+                            <Grid ColumnDefinitions="*,40">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding ArticleInput, Mode=TwoWay}"
+                                         Watermark="Article or barcode"
+                                         IsEnabled="{Binding !IsLookingUp}"
+                                         Background="{StaticResource SurfaceContainerLowest}"
+                                         BorderThickness="0"
+                                         CornerRadius="6,0,0,6"
+                                         Padding="10,0"
+                                         FontSize="13"
+                                         VerticalContentAlignment="Center"
+                                         Height="40"/>
+                                <Button Grid.Column="1"
+                                        Command="{Binding LookupProductCommand}"
+                                        IsEnabled="{Binding !IsLookingUp}"
+                                        Background="{StaticResource Primary}"
+                                        Width="40" Height="40"
+                                        CornerRadius="0,6,6,0"
+                                        Padding="0">
+                                    <TextBlock Text="&#xe31b;"
+                                               FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20"
+                                               Foreground="{StaticResource OnPrimary}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+
+                            <!-- Loading indicator -->
+                            <TextBlock Text="Looking up..."
+                                       FontSize="11"
+                                       Foreground="{StaticResource OnSurfaceVariant}"
+                                       IsVisible="{Binding IsLookingUp}"/>
+
+                            <!-- Error -->
+                            <Border Background="#FEF2F2"
+                                    CornerRadius="6"
+                                    Padding="10,8"
+                                    IsVisible="{Binding LookupError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                <TextBlock Text="{Binding LookupError}"
+                                           Foreground="#DC2626"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Found product info -->
+                            <Border Background="#F0FDF4"
+                                    BorderBrush="#BBF7D0"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="12"
+                                    IsVisible="{Binding HasProduct}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{Binding ProductName}"
+                                               FontWeight="Bold"
+                                               FontSize="13"
+                                               Foreground="#166534"
+                                               TextWrapping="Wrap"/>
+                                    <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
+                                        <TextBlock Grid.Column="0" Text="Article: "
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ProductArticle}"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource OnSurface}"
+                                                   FontWeight="Medium"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <TextBlock Grid.Column="0" Text="Price: "
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ProductPrice}"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource OnSurface}"
+                                                   FontWeight="Medium"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <TextBlock Grid.Column="0" Text="Category: "
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ProductCategory}"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource OnSurface}"
+                                                   FontWeight="Medium"
+                                                   TextWrapping="Wrap"/>
+                                    </Grid>
+                                    <TextBlock Text="Dynamic fields will use these values when printing."
+                                               FontSize="10"
+                                               Foreground="#16A34A"
+                                               Margin="0,6,0,0"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                    <StackPanel Spacing="8">
                             <TextBlock Text="TARGET PRINTER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
                             <ComboBox ItemsSource="{Binding Printers}" SelectedItem="{Binding SelectedPrinter}" HorizontalAlignment="Stretch" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6" FontSize="14" FontWeight="Medium"/>
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">

@@ -1,10 +1,32 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LabelStudio.Services;
 
 namespace LabelStudio.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private readonly ISettingsService _settingsService;
+
+    public MainWindowViewModel(ISettingsService settingsService)
+    {
+        _settingsService = settingsService;
+    }
+
+    // ── Auth state ──────────────────────────────────────────────────────────
+    /// <summary>True once the user has successfully signed in.</summary>
+    [ObservableProperty]
+    private bool _isAuthenticated;
+
+    /// <summary>
+    /// ViewModel shown in the full-screen auth shell
+    /// (LoginViewModel or AuthSettingsViewModel).
+    /// Null when the main app layout is visible.
+    /// </summary>
+    [ObservableProperty]
+    private ViewModelBase? _authContent;
+
+    // ── Main app state ──────────────────────────────────────────────────────
     [ObservableProperty]
     private ViewModelBase _currentContent = new TemplatesViewModel();
 
@@ -36,7 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void NavigateToPrintPreview()
     {
         if (CurrentContent is not EditorViewModel activeEditor) return;
-        CurrentContent = new PrintPreviewViewModel(activeEditor);
+        CurrentContent = new PrintPreviewViewModel(activeEditor, _settingsService);
     }
 
     private bool IsEditorActive() => CurrentContent is EditorViewModel;

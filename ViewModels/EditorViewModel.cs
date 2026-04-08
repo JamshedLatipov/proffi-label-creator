@@ -264,6 +264,6 @@ public partial class EditorViewModel : ViewModelBase
     private void NavigateToPrintPreview()
     {
         Save();
-        Navigate?.Invoke(new PrintPreviewViewModel(this));
+        Navigate?.Invoke(new PrintPreviewViewModel(this, new SettingsService()));
     }
 }

@@ -1,0 +1,167 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="LabelStudio.Views.LoginView"
+             x:DataType="vm:LoginViewModel"
+             Background="{StaticResource Background}">
+
+    <UserControl.Styles>
+        <Style Selector="TextBox.LoginInput">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource OutlineVariant}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+        <Style Selector="TextBox.LoginInput:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="{StaticResource Primary}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        <Style Selector="Button.PrimaryBtn">
+            <Setter Property="Background" Value="{StaticResource Primary}"/>
+            <Setter Property="Foreground" Value="{StaticResource OnPrimary}"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="48"/>
+        </Style>
+        <Style Selector="Button.PrimaryBtn:disabled /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource OutlineVariant}"/>
+        </Style>
+        <Style Selector="Button.IconBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="*, *">
+        <!-- Left branding panel -->
+        <Border Grid.Column="0"
+                Background="{StaticResource Primary}"
+                CornerRadius="0,24,24,0"
+                Padding="48">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="24">
+                <Border Width="80" Height="80" CornerRadius="16"
+                        Background="{StaticResource OnPrimary}"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#xea3b;"
+                               FontFamily="{StaticResource MaterialIcons}"
+                               Foreground="{StaticResource Primary}"
+                               FontSize="48"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Label Studio"
+                           FontFamily="{StaticResource ManropeFont}"
+                           FontSize="40"
+                           FontWeight="Black"
+                           Foreground="{StaticResource OnPrimary}"
+                           TextAlignment="Center"/>
+                <TextBlock Text="Technical Label Designer"
+                           FontSize="18"
+                           Foreground="{StaticResource OnPrimary}"
+                           Opacity="0.8"
+                           TextAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Right login form -->
+        <Border Grid.Column="1" Padding="48">
+            <Grid>
+                <!-- Settings button -->
+                <Button Classes="IconBtn"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Right"
+                        Command="{Binding OpenSettingsCommand}"
+                        ToolTip.Tip="Connection settings">
+                    <TextBlock Text="&#xe8b8;"
+                               FontFamily="{StaticResource MaterialIcons}"
+                               FontSize="24"
+                               Foreground="{StaticResource OnSurfaceVariant}"/>
+                </Button>
+
+                <StackPanel MaxWidth="380"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Stretch">
+
+                    <TextBlock Text="Sign in"
+                               FontFamily="{StaticResource ManropeFont}"
+                               FontSize="32"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource OnSurface}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,32"/>
+
+                    <!-- Error message -->
+                    <Border Background="#FEF2F2"
+                            CornerRadius="8"
+                            Padding="12,10"
+                            Margin="0,0,0,16"
+                            IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Foreground="#DC2626"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- Email -->
+                    <TextBlock Text="Email"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource OnSurface}"
+                               Margin="0,0,0,6"/>
+                    <TextBox Classes="LoginInput"
+                             Text="{Binding Email, Mode=TwoWay}"
+                             Watermark="Enter your email"
+                             IsEnabled="{Binding !IsBusy}"
+                             Margin="0,0,0,20"/>
+
+                    <!-- Password -->
+                    <TextBlock Text="Password"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource OnSurface}"
+                               Margin="0,0,0,6"/>
+                    <TextBox Classes="LoginInput"
+                             Text="{Binding Password, Mode=TwoWay}"
+                             Watermark="Enter your password"
+                             PasswordChar="•"
+                             IsEnabled="{Binding !IsBusy}"
+                             Margin="0,0,0,28"/>
+
+                    <!-- Login button -->
+                    <Button Classes="PrimaryBtn"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding !IsBusy}">
+                        <Panel>
+                            <TextBlock Text="Sign in"
+                                       IsVisible="{Binding !IsBusy}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="8"
+                                        IsVisible="{Binding IsBusy}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="&#xe863;"
+                                           FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="18"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="Authenticating..."
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Panel>
+                    </Button>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
