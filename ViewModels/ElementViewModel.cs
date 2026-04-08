@@ -55,6 +55,14 @@ public partial class ElementViewModel : ViewModelBase
         {
             _cachedBarcodeSource?.Dispose();
             _cachedBarcodeSource = RenderBarcode(_barcodeValue, BarcodeFormat.CODE_128, w, h);
+            // Also re-render the preview override at the new size if active
+            if (_cachedPreviewBarcodeSource is not null)
+            {
+                var previewVal = _cachedPreviewBarcodeSource; // grab to get the value — re-render via property setter
+                _cachedPreviewBarcodeSource?.Dispose();
+                _cachedPreviewBarcodeSource = null;
+                // We don't store the preview string, so just clear it; caller can re-push
+            }
             OnPropertyChanged(nameof(BarcodeSource));
         }
         else if (Model.Kind == ElementKind.QrCode)
@@ -95,10 +103,41 @@ public partial class ElementViewModel : ViewModelBase
     private Bitmap? _cachedImageSource;
     private Bitmap? _cachedBarcodeSource;
     private Bitmap? _cachedQrSource;
+    private Bitmap? _cachedPreviewBarcodeSource;
 
     public Bitmap? ImageSource   => _cachedImageSource;
-    public Bitmap? BarcodeSource => _cachedBarcodeSource;
+    public Bitmap? BarcodeSource => _cachedPreviewBarcodeSource ?? _cachedBarcodeSource;
     public Bitmap? QrSource      => _cachedQrSource;
+
+    // ── Preview override (set by PrintPreviewViewModel after product lookup) ──
+    private string? _previewValue;
+    /// <summary>
+    /// When set by the print-preview, dynamic-field elements display this instead of the raw key.
+    /// Set to null to revert to showing the key.
+    /// </summary>
+    public string? PreviewValue
+    {
+        get => _previewValue;
+        set { _previewValue = value; OnPropertyChanged(nameof(DisplayContent)); }
+    }
+    /// <summary>Resolved display text for the preview canvas. Returns PreviewValue when set, otherwise Content.</summary>
+    public string DisplayContent => _previewValue ?? _content;
+
+    /// <summary>
+    /// When set, the preview canvas shows this barcode instead of the element's stored BarcodeValue.
+    /// Set to null to revert.
+    /// </summary>
+    public string? PreviewBarcodeValue
+    {
+        set
+        {
+            _cachedPreviewBarcodeSource?.Dispose();
+            _cachedPreviewBarcodeSource = value is not null
+                ? RenderBarcode(value, BarcodeFormat.CODE_128, Math.Max(1, (int)_width), Math.Max(1, (int)_height))
+                : null;
+            OnPropertyChanged(nameof(BarcodeSource));
+        }
+    }
 
     private static Bitmap? LoadBitmap(string? path) =>
         !string.IsNullOrEmpty(path) && File.Exists(path) ? new Bitmap(path) : null;
@@ -270,6 +309,7 @@ public partial class ElementViewModel : ViewModelBase
     {
         Model.Content = value;
         _editor.MarkDirty();
+        OnPropertyChanged(nameof(DisplayContent));
         // Refresh QR if this is a QR element
         if (Model.Kind == ElementKind.QrCode)
         {

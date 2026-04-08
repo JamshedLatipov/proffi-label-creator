@@ -69,7 +69,7 @@
                                                     <!-- Dynamic Field -->
                                                     <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsDynamic}}"
                                                             Background="#e6f0fa" CornerRadius="3" Margin="2">
-                                                        <TextBlock Text="{Binding Content}"
+                                                        <TextBlock Text="{Binding DisplayContent}"
                                                                    FontFamily="Consolas,Monospace"
                                                                    FontSize="{Binding FontSize}"
                                                                    Foreground="{StaticResource Primary}"
@@ -147,7 +147,11 @@
                                          Padding="10,0"
                                          FontSize="13"
                                          VerticalContentAlignment="Center"
-                                         Height="40"/>
+                                         Height="40">
+                                    <TextBox.KeyBindings>
+                                        <KeyBinding Gesture="Return" Command="{Binding LookupProductCommand}"/>
+                                    </TextBox.KeyBindings>
+                                </TextBox>
                                 <Button Grid.Column="1"
                                         Command="{Binding LookupProductCommand}"
                                         IsEnabled="{Binding !IsLookingUp}"

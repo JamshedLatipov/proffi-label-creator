@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Printing;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -52,6 +53,8 @@ public partial class PrintPreviewViewModel : ViewModelBase
         HasSuggestions = false;
         LookupError    = string.Empty;
         Suggestions.Clear();
+        _resolvedFields.Clear();
+        ClearPreviewValues();
     }
 
     // ── Print state ────────────────────────────────────────────────────
@@ -115,7 +118,7 @@ public partial class PrintPreviewViewModel : ViewModelBase
                 return;
             }
 
-            var url = $"{baseUrl}/products/autocomplete/?q={Uri.EscapeDataString(ArticleInput.Trim())}&page=1";
+            var url = $"{baseUrl}/products/product/?barcode={Uri.EscapeDataString(ArticleInput.Trim())}";
 
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             if (!string.IsNullOrWhiteSpace(_settings.AuthToken))
@@ -130,46 +133,38 @@ public partial class PrintPreviewViewModel : ViewModelBase
                 return;
             }
 
-            using var doc  = JsonDocument.Parse(rawBody);
+            using var doc = JsonDocument.Parse(rawBody);
             var root = doc.RootElement;
 
+            // Response: {"body": [ {product}, ... ]}
             if (!root.TryGetProperty("body", out var bodyEl) ||
-                bodyEl.ValueKind != JsonValueKind.Object)
+                bodyEl.ValueKind != JsonValueKind.Array)
             {
                 LookupError = "Product not found";
                 return;
             }
 
-            // ── Exact match → apply immediately ──────────────────────
-            if (bodyEl.TryGetProperty("match", out var matchEl) &&
-                matchEl.ValueKind == JsonValueKind.Object)
+            var products = bodyEl.EnumerateArray()
+                .Select(ParseProductSuggestion)
+                .Where(p => !string.IsNullOrEmpty(p.Id))
+                .ToList();
+
+            if (products.Count == 0)
             {
-                var id   = matchEl.TryGetProperty("id",   out var mid)  ? mid.GetString()  ?? "" : "";
-                var name = matchEl.TryGetProperty("name", out var mname) ? mname.GetString() ?? "" : "";
-                ApplyProduct(id, name);
-                return;
+                LookupError = "No products found";
             }
-
-            // ── No exact match → show "like" suggestions ─────────────
-            if (bodyEl.TryGetProperty("like", out var likeEl) &&
-                likeEl.ValueKind == JsonValueKind.Array)
+            else if (products.Count == 1)
             {
-                foreach (var item in likeEl.EnumerateArray())
-                {
-                    var id   = item.TryGetProperty("id",   out var sid)   ? sid.GetString()   ?? "" : "";
-                    var name = item.TryGetProperty("name", out var sname)  ? sname.GetString()  ?? "" : "";
-                    if (!string.IsNullOrEmpty(id))
-                        Suggestions.Add(new ProductSuggestion(id, name));
-                }
-
-                if (Suggestions.Count > 0)
-                    HasSuggestions = true;
-                else
-                    LookupError = "No products found";
+                // Single result → apply immediately and start printing
+                ApplyProduct(products[0]);
+                if (CanPrint()) Print();
             }
             else
             {
-                LookupError = "No products found";
+                // Multiple results → let user pick
+                foreach (var p in products)
+                    Suggestions.Add(p);
+                HasSuggestions = true;
             }
         }
         catch (HttpRequestException ex)
@@ -193,23 +188,106 @@ public partial class PrintPreviewViewModel : ViewModelBase
     [RelayCommand]
     private void SelectSuggestion(ProductSuggestion suggestion)
     {
-        ApplyProduct(suggestion.Id, suggestion.Name);
+        ApplyProduct(suggestion);
         HasSuggestions = false;
         Suggestions.Clear();
     }
 
-    private void ApplyProduct(string id, string name)
+    private void ApplyProduct(ProductSuggestion p)
     {
-        _resolvedFields["name"]         = name;
-        _resolvedFields["product_name"] = name;
-        _resolvedFields["id"]           = id;
-        _resolvedFields["barcode"]      = ArticleInput.Trim();
+        _resolvedFields["name"]              = p.Name;
+        _resolvedFields["product_name"]      = p.Name;
+        _resolvedFields["id"]                = p.Id;
+        _resolvedFields["barcode"]           = p.Barcode;
+        _resolvedFields["article"]           = p.Article;
+        _resolvedFields["description"]       = p.Description;
+        _resolvedFields["origin"]            = p.Origin;
 
-        ProductName     = name;
-        ProductArticle  = id;
+        // Flat category aliases
+        _resolvedFields["category"]          = p.CategoryName;
+        _resolvedFields["category.name"]     = p.CategoryName;
+        _resolvedFields["category.code"]     = p.CategoryCode;
+
+        // Flat size aliases
+        _resolvedFields["size"]              = p.SizeDisplay;
+        _resolvedFields["size.size_display"] = p.SizeDisplay;
+        _resolvedFields["size.display"]      = p.SizeDisplay;
+        _resolvedFields["size.code"]         = p.SizeCode;
+
+        // State aliases
+        _resolvedFields["state"]             = p.StateName;
+        _resolvedFields["state.name"]        = p.StateName;
+
+        ProductName     = p.Name;
+        ProductArticle  = p.Article;
         ProductPrice    = string.Empty;
-        ProductCategory = string.Empty;
+        ProductCategory = p.CategoryName;
         HasProduct      = true;
+
+        // Push resolved values to the preview canvas
+        PushPreviewValues();
+    }
+
+    private static ProductSuggestion ParseProductSuggestion(JsonElement el)
+    {
+        static string S(JsonElement e, string key) =>
+            e.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String
+                ? v.GetString() ?? string.Empty : string.Empty;
+
+        var id          = S(el, "id");
+        var name        = S(el, "name");
+        var barcode     = S(el, "barcode");
+        var article     = S(el, "article");
+        var description = S(el, "description");
+        var origin      = S(el, "origin");
+
+        string categoryName = string.Empty, categoryCode = string.Empty;
+        if (el.TryGetProperty("category", out var cat) && cat.ValueKind == JsonValueKind.Object)
+        {
+            categoryName = S(cat, "name");
+            categoryCode = S(cat, "code");
+        }
+
+        string sizeDisplay = string.Empty, sizeCode = string.Empty;
+        if (el.TryGetProperty("size", out var sz) && sz.ValueKind == JsonValueKind.Object)
+        {
+            sizeDisplay = S(sz, "size_display");
+            sizeCode    = S(sz, "code");
+        }
+
+        string stateName = string.Empty;
+        if (el.TryGetProperty("state", out var st) && st.ValueKind == JsonValueKind.Object)
+            stateName = S(st, "name");
+
+        return new ProductSuggestion(id, name, barcode, article,
+            categoryName, categoryCode, description, sizeDisplay, sizeCode, stateName, origin);
+    }
+
+    /// <summary>Strips optional surrounding braces: "{name}" → "name", "name" → "name".</summary>
+    private static string NormalizeKey(string key) =>
+        key.Length > 2 && key[0] == '{' && key[^1] == '}' ? key[1..^1] : key;
+
+    private void PushPreviewValues()
+    {
+        var barcode = _resolvedFields.TryGetValue("barcode", out var b) ? b : null;
+        foreach (var el in _editor.Elements)
+        {
+            if (el.Model.Kind == ElementKind.DynamicField)
+                el.PreviewValue = _resolvedFields.TryGetValue(NormalizeKey(el.Content), out var v) ? v : null;
+            else if (el.Model.Kind == ElementKind.Barcode && !string.IsNullOrEmpty(barcode))
+                el.PreviewBarcodeValue = barcode;
+        }
+    }
+
+    private void ClearPreviewValues()
+    {
+        foreach (var el in _editor.Elements)
+        {
+            if (el.Model.Kind == ElementKind.DynamicField)
+                el.PreviewValue = null;
+            else if (el.Model.Kind == ElementKind.Barcode)
+                el.PreviewBarcodeValue = null;
+        }
     }
 
     /// <summary>Resolves a label element's display content, substituting dynamic field keys.</summary>
@@ -217,7 +295,7 @@ public partial class PrintPreviewViewModel : ViewModelBase
     {
         if (m.Kind != ElementKind.DynamicField || _resolvedFields.Count == 0)
             return m.Content;
-        return _resolvedFields.TryGetValue(m.Content, out var val) ? val : m.Content;
+        return _resolvedFields.TryGetValue(NormalizeKey(m.Content), out var val) ? val : m.Content;
     }
 
     private void LoadPrinters()
@@ -344,7 +422,8 @@ public partial class PrintPreviewViewModel : ViewModelBase
                     BmpDrawText(g, m, x, y, mw, mh, dpiX, resolvedText: ResolveContent(m));
                     break;
                 case ElementKind.Barcode:
-                    BmpDrawBarcode(g, m, x, y, mw, mh);
+                    BmpDrawBarcode(g, m, x, y, mw, mh,
+                        resolvedBarcode: _resolvedFields.TryGetValue("barcode", out var rb) ? rb : null);
                     break;
                 case ElementKind.QrCode:
                     BmpDrawQr(g, m, x, y, mw, mh);
@@ -395,11 +474,13 @@ public partial class PrintPreviewViewModel : ViewModelBase
     }
 
     private static void BmpDrawBarcode(Graphics g, LabelElement m,
-                                        float x, float y, float w, float h)
+                                        float x, float y, float w, float h,
+                                        string? resolvedBarcode = null)
     {
         try
         {
-            string val   = string.IsNullOrWhiteSpace(m.BarcodeValue) ? "0000000000000" : m.BarcodeValue;
+            string val = resolvedBarcode
+                         ?? (string.IsNullOrWhiteSpace(m.BarcodeValue) ? "0000000000000" : m.BarcodeValue);
             float  textH = Math.Max(8f, h * 0.18f);
             float  barcH = h - textH;
 
@@ -481,8 +562,28 @@ public partial class PrintPreviewViewModel : ViewModelBase
 /// <summary>One item in the autocomplete "like" list.</summary>
 public sealed class ProductSuggestion
 {
-    public string Id   { get; }
-    public string Name { get; }
-    public ProductSuggestion(string id, string name) { Id = id; Name = name; }
+    public string Id           { get; }
+    public string Name         { get; }
+    public string Barcode      { get; }
+    public string Article      { get; }
+    public string CategoryName { get; }
+    public string CategoryCode { get; }
+    public string Description  { get; }
+    public string SizeDisplay  { get; }
+    public string SizeCode     { get; }
+    public string StateName    { get; }
+    public string Origin       { get; }
+
+    public ProductSuggestion(string id, string name, string barcode = "", string article = "",
+        string categoryName = "", string categoryCode = "", string description = "",
+        string sizeDisplay = "", string sizeCode = "", string stateName = "", string origin = "")
+    {
+        Id = id; Name = name; Barcode = barcode; Article = article;
+        CategoryName = categoryName; CategoryCode = categoryCode;
+        Description = description;
+        SizeDisplay = sizeDisplay; SizeCode = sizeCode;
+        StateName = stateName; Origin = origin;
+    }
+
     public override string ToString() => Name;
 }
