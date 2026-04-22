@@ -1,0 +1,254 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             xmlns:models="using:LabelStudio.Models"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             x:Class="LabelStudio.Views.PrinterProfilesView"
+             x:DataType="vm:PrinterProfilesViewModel">
+
+    <Grid RowDefinitions="Auto,*" Margin="32">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,32">
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                    <TextBlock Text="Settings" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                    <TextBlock Text="&#xe5cc;" FontFamily="{StaticResource MaterialIcons}" FontSize="14"
+                               Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Printer Profiles" FontSize="12" FontWeight="Medium" Foreground="{StaticResource OnSurface}"/>
+                </StackPanel>
+                <TextBlock Text="Printer Profiles" FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold"
+                           FontSize="32" Foreground="{StaticResource OnSurface}"/>
+                <TextBlock Text="Define reusable print configurations. Select a profile when creating a new project."
+                           FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Command="{Binding ShowAddFormCommand}"
+                    Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}"
+                    CornerRadius="8" Padding="16,10" VerticalAlignment="Bottom">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="Add Profile" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Content: list + form side by side -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,24,380">
+
+            <!-- Profiles List -->
+            <Border Grid.Column="0" Background="{StaticResource SurfaceContainerLowest}"
+                    BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1" CornerRadius="12">
+                <Grid RowDefinitions="Auto,*">
+                    <!-- List header -->
+                    <Border Grid.Row="0" BorderBrush="{StaticResource OutlineVariant}" BorderThickness="0,0,0,1" Padding="20,14">
+                        <Grid ColumnDefinitions="*,120,100,80,80">
+                            <TextBlock Grid.Column="0" Text="PROFILE NAME" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBlock Grid.Column="1" Text="PRINTER" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBlock Grid.Column="2" Text="MATERIAL" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBlock Grid.Column="3" Text="DPI" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBlock Grid.Column="4" Text="COLOR" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1">
+                        <ItemsControl ItemsSource="{Binding Profiles}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:PrinterProfile">
+                                    <Border BorderBrush="{StaticResource OutlineVariant}" BorderThickness="0,0,0,1"
+                                            Padding="20,14" Cursor="Hand">
+                                        <Grid ColumnDefinitions="*,120,100,80,80">
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                                <Border Width="28" Height="28" CornerRadius="14"
+                                                        Background="{StaticResource PrimaryContainer}">
+                                                    <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}"
+                                                               FontSize="14" Foreground="{StaticResource Primary}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource OnSurface}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding PrinterName}" FontSize="12"
+                                                       Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Material}" FontSize="12"
+                                                       Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Dpi}" FontSize="12"
+                                                       Foreground="{StaticResource OnSurfaceVariant}" VerticalAlignment="Center"
+                                                       FontFamily="Consolas,Monospace"/>
+                                            <Border Grid.Column="4" CornerRadius="4" Padding="8,2" HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center">
+                                                <Border.Background>
+                                                    <SolidColorBrush Color="#e2e8f0"/>
+                                                </Border.Background>
+                                                <TextBlock FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}"
+                                                           Text="{Binding IsMonochrome, Converter={x:Static vm:BoolToStringConverter.MonoColor}}"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Action buttons column (Edit / Delete for selected) -->
+            <!-- These are shown when something is selected via the form -->
+
+            <!-- Add / Edit Form Panel -->
+            <Border Grid.Column="2" Background="{StaticResource SurfaceContainerLowest}"
+                    BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1" CornerRadius="12"
+                    Padding="28" IsVisible="{Binding IsFormVisible}"
+                    VerticalAlignment="Top">
+                <StackPanel Spacing="0">
+
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,24">
+                        <TextBlock Grid.Column="0"
+                                   FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="16"
+                                   Foreground="{StaticResource OnSurface}"
+                                   Text="{Binding IsEditing, Converter={x:Static vm:BoolToStringConverter.EditAdd}}"/>
+                        <Button Grid.Column="1" Command="{Binding CancelFormCommand}"
+                                Background="Transparent" Padding="4">
+                            <TextBlock Text="&#xe5cd;" FontFamily="{StaticResource MaterialIcons}"
+                                       FontSize="20" Foreground="{StaticResource OnSurfaceVariant}"/>
+                        </Button>
+                    </Grid>
+
+                    <StackPanel Spacing="16">
+
+                        <!-- Profile Name -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="PROFILE NAME" FontSize="10" FontWeight="Bold"
+                                           Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                                <TextBlock Text="*" FontSize="10" Foreground="#e53e3e"/>
+                            </StackPanel>
+                            <TextBox Text="{Binding FormName}" Watermark="e.g. Zebra Warehouse 300dpi"
+                                     Background="{StaticResource SurfaceContainerLow}"
+                                     BorderBrush="{StaticResource OutlineVariant}"
+                                     CornerRadius="8" FontSize="13" Padding="12,10"/>
+                        </StackPanel>
+
+                        <!-- Printer -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="PRINTER" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <ComboBox ItemsSource="{Binding SystemPrinters}"
+                                      SelectedItem="{Binding FormPrinterName}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{StaticResource SurfaceContainerLow}"
+                                      BorderBrush="{StaticResource OutlineVariant}"
+                                      CornerRadius="8" FontSize="13" Padding="12,10"/>
+                        </StackPanel>
+
+                        <!-- DPI -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="RESOLUTION" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <ComboBox ItemsSource="{Binding DpiOptions}"
+                                      SelectedItem="{Binding FormDpi}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{StaticResource SurfaceContainerLow}"
+                                      BorderBrush="{StaticResource OutlineVariant}"
+                                      CornerRadius="8" FontSize="13" Padding="12,10"/>
+                        </StackPanel>
+
+                        <!-- Material -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="MATERIAL" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <ComboBox ItemsSource="{Binding Materials}"
+                                      SelectedItem="{Binding FormMaterial}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{StaticResource SurfaceContainerLow}"
+                                      BorderBrush="{StaticResource OutlineVariant}"
+                                      CornerRadius="8" FontSize="13" Padding="12,10"/>
+                        </StackPanel>
+
+                        <!-- Color mode -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="COLOR MODE" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Monochrome" FontSize="13" VerticalAlignment="Center"
+                                           Foreground="{StaticResource OnSurface}"/>
+                                <ToggleSwitch IsChecked="{Binding !FormIsMonochrome}"
+                                             OnContent="" OffContent="" Margin="0"/>
+                                <TextBlock Text="Color" FontSize="13" VerticalAlignment="Center"
+                                           Foreground="{StaticResource OnSurface}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Buttons -->
+                        <Grid ColumnDefinitions="*,12,*" Margin="0,8,0,0">
+                            <Button Grid.Column="0" Command="{Binding CancelFormCommand}"
+                                    Background="{StaticResource SurfaceContainerHighest}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    CornerRadius="8" Padding="0,12">
+                                <TextBlock Text="Cancel" FontWeight="SemiBold" FontSize="13"
+                                           Foreground="{StaticResource OnSurface}"/>
+                            </Button>
+                            <Button Grid.Column="2" Command="{Binding SaveProfileCommand}"
+                                    Background="{StaticResource Primary}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    CornerRadius="8" Padding="0,12">
+                                <TextBlock Text="Save" FontFamily="{StaticResource ManropeFont}"
+                                           FontWeight="Bold" FontSize="13"
+                                           Foreground="{StaticResource OnPrimary}"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- Delete (only when editing) -->
+                        <Button Command="{Binding DeleteProfileCommand}"
+                                IsVisible="{Binding IsEditing}"
+                                Background="Transparent"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                Padding="0,8">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="&#xe872;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="16" Foreground="#dc2626" VerticalAlignment="Center"/>
+                                <TextBlock Text="Delete profile" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="#dc2626" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Empty state when form not visible -->
+            <Border Grid.Column="2" Background="{StaticResource SurfaceContainerLowest}"
+                    BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1" CornerRadius="12"
+                    IsVisible="{Binding !IsFormVisible}" VerticalAlignment="Top" Padding="28">
+                <StackPanel HorizontalAlignment="Center" Spacing="16" Margin="0,40">
+                    <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}"
+                               FontSize="48" Foreground="{StaticResource OutlineVariant}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Select a profile to edit&#xA;or add a new one"
+                               FontSize="13" Foreground="{StaticResource OnSurfaceVariant}"
+                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                    <Button Command="{Binding ShowAddFormCommand}"
+                            Background="{StaticResource PrimaryContainer}"
+                            HorizontalAlignment="Center" CornerRadius="8" Padding="16,10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}"
+                                       FontSize="14" Foreground="{StaticResource Primary}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Add Profile" FontWeight="SemiBold" FontSize="12"
+                                       Foreground="{StaticResource Primary}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+    </Grid>
+
+</UserControl>

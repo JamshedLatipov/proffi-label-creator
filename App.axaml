@@ -1,0 +1,78 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LabelStudio.App"
+             xmlns:local="using:LabelStudio"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+
+    <Application.Resources>
+        <FontFamily x:Key="InterFont">Inter</FontFamily>
+        <FontFamily x:Key="ManropeFont">avares://LabelStudio/Assets/Fonts/Manrope.ttf#Manrope</FontFamily>
+        <FontFamily x:Key="MaterialIcons">avares://LabelStudio/Assets/Fonts/MaterialSymbolsOutlined.ttf#Material Symbols Outlined</FontFamily>
+
+        <SolidColorBrush x:Key="SurfaceTint">#005db5</SolidColorBrush>
+        <SolidColorBrush x:Key="OnPrimaryFixedVariant">#005bb0</SolidColorBrush>
+        <SolidColorBrush x:Key="OutlineVariant">#acb3ba</SolidColorBrush>
+        <SolidColorBrush x:Key="InverseSurface">#0c0e11</SolidColorBrush>
+        <SolidColorBrush x:Key="OnSecondaryContainer">#4f515a</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryFixed">#e1e2ec</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryDim">#51535b</SolidColorBrush>
+        <SolidColorBrush x:Key="TertiaryContainer">#d9d7f8</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryFixedDim">#bfd5ff</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceBright">#f9f9fc</SolidColorBrush>
+        <SolidColorBrush x:Key="OnSecondary">#f9f8ff</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryFixedDim">#d3d4de</SolidColorBrush>
+        <SolidColorBrush x:Key="InversePrimary">#5f9efb</SolidColorBrush>
+        <SolidColorBrush x:Key="InverseOnSurface">#9c9da0</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryContainer">#d6e3ff</SolidColorBrush>
+        <SolidColorBrush x:Key="Primary">#005db5</SolidColorBrush>
+        <SolidColorBrush x:Key="ErrorContainer">#fe8983</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceContainerLowest">#ffffff</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceContainerHighest">#dde3eb</SolidColorBrush>
+        <SolidColorBrush x:Key="OnPrimary">#f6f7ff</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceVariant">#dde3eb</SolidColorBrush>
+        <SolidColorBrush x:Key="Background">#f9f9fc</SolidColorBrush>
+        <SolidColorBrush x:Key="TertiaryFixed">#d9d7f8</SolidColorBrush>
+        <SolidColorBrush x:Key="OnErrorContainer">#752121</SolidColorBrush>
+        <SolidColorBrush x:Key="OnPrimaryContainer">#00519e</SolidColorBrush>
+        <SolidColorBrush x:Key="TertiaryDim">#51515c</SolidColorBrush>
+        <SolidColorBrush x:Key="Surface">#f9f9fc</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryDim">#0052a0</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceContainer">#ebeef4</SolidColorBrush>
+        <SolidColorBrush x:Key="OnTertiaryContainer">#4a4a65</SolidColorBrush>
+        <SolidColorBrush x:Key="OnSurface">#2d3339</SolidColorBrush>
+        <SolidColorBrush x:Key="OnError">#fff7f6</SolidColorBrush>
+        <SolidColorBrush x:Key="OnTertiaryFixed">#383751</SolidColorBrush>
+        <SolidColorBrush x:Key="OnBackground">#2d3339</SolidColorBrush>
+        <SolidColorBrush x:Key="OnTertiaryFixedVariant">#54546f</SolidColorBrush>
+        <SolidColorBrush x:Key="Tertiary">#5d5c78</SolidColorBrush>
+        <SolidColorBrush x:Key="OnSecondaryFixed">#3d3f47</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryContainer">#e1e2ec</SolidColorBrush>
+        <SolidColorBrush x:Key="Outline">#757b83</SolidColorBrush>
+        <SolidColorBrush x:Key="TertiaryFixedDim">#cbc9e9</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryFixed">#d6e3ff</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceContainerLow">#f2f3f8</SolidColorBrush>
+        <SolidColorBrush x:Key="OnSecondaryFixedVariant">#595b63</SolidColorBrush>
+        <SolidColorBrush x:Key="ErrorDim">#4e0309</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceDim">#d3dbe4</SolidColorBrush>
+        <SolidColorBrush x:Key="OnTertiary">#fbf7ff</SolidColorBrush>
+        <SolidColorBrush x:Key="Secondary">#5d5f67</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceContainerHigh">#e4e8ef</SolidColorBrush>
+        <SolidColorBrush x:Key="OnPrimaryFixed">#003f7d</SolidColorBrush>
+        <SolidColorBrush x:Key="Error">#9f403d</SolidColorBrush>
+        <SolidColorBrush x:Key="OnSurfaceVariant">#596067</SolidColorBrush>
+    </Application.Resources>
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+            <Setter Property="Foreground" Value="{StaticResource OnSurface}"/>
+        </Style>
+    </Application.Styles>
+</Application>

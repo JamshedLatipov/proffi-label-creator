@@ -1,0 +1,675 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             xmlns:local="using:LabelStudio.Views"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="LabelStudio.Views.EditorView"
+             x:DataType="vm:EditorViewModel"
+             Name="EditorRoot">
+
+    <Grid ColumnDefinitions="260,*,300">
+
+        <!-- ── LEFT: Elements Library ──────────────────────────────── -->
+        <Border Grid.Column="0" Background="{StaticResource SurfaceContainerHigh}"
+                BorderBrush="{StaticResource OutlineVariant}" BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,*">
+
+                <!-- Header -->
+                <Border Grid.Row="0" BorderBrush="{StaticResource OutlineVariant}"
+                        BorderThickness="0,0,0,1" Padding="16,14">
+                    <TextBlock Text="ELEMENTS" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                </Border>
+
+                <ScrollViewer Grid.Row="1" Padding="12">
+                    <StackPanel Spacing="20">
+
+                        <!-- Add elements -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="ADD TO CANVAS" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}"
+                                       LetterSpacing="1" Margin="4,0,0,4"/>
+
+                            <Button Command="{Binding AddTextCommand}"
+                                    HorizontalAlignment="Stretch" CornerRadius="8"
+                                    Background="{StaticResource SurfaceContainerLowest}"
+                                    Padding="12,10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="&#xe264;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20" Foreground="{StaticResource Primary}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Static Text" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Fixed label or note" FontSize="10"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding AddDynamicFieldCommand}"
+                                    HorizontalAlignment="Stretch" CornerRadius="8"
+                                    Background="{StaticResource SurfaceContainerLowest}"
+                                    Padding="12,10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="&#xf20e;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20" Foreground="{StaticResource Tertiary}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Dynamic Field" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Variable from ERP" FontSize="10"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding AddBarcodeCommand}"
+                                    HorizontalAlignment="Stretch" CornerRadius="8"
+                                    Background="{StaticResource SurfaceContainerLowest}"
+                                    Padding="12,10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="&#xe85c;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20" Foreground="{StaticResource OnSurface}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Barcode" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="EAN-13 / Code128" FontSize="10"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding AddQrCodeCommand}"
+                                    HorizontalAlignment="Stretch" CornerRadius="8"
+                                    Background="{StaticResource SurfaceContainerLowest}"
+                                    Padding="12,10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="&#xe00a;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20" Foreground="{StaticResource OnSurface}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="QR Code" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Mobile interaction" FontSize="10"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding AddRectangleCommand}"
+                                    HorizontalAlignment="Stretch" CornerRadius="8"
+                                    Background="{StaticResource SurfaceContainerLowest}"
+                                    Padding="12,10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="&#xeb54;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20" Foreground="{StaticResource OnSurface}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Rectangle" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Border or divider" FontSize="10"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding AddImageCommand}"
+                                    HorizontalAlignment="Stretch" CornerRadius="8"
+                                    Background="{StaticResource SurfaceContainerLowest}"
+                                    Padding="12,10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="&#xe3f4;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20" Foreground="{StaticResource OnSurface}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Image" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="PNG, JPEG from file" FontSize="10"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- Layer list -->
+                        <StackPanel Spacing="6" IsVisible="{Binding HasSelection}">
+                            <TextBlock Text="LAYERS" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}"
+                                       LetterSpacing="1" Margin="4,0,0,4"/>
+                            <ItemsControl ItemsSource="{Binding Elements}" x:CompileBindings="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:CompileBindings="False">
+                                        <Button Command="{Binding SelectCommand}"
+                                                Background="Transparent"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Left"
+                                                Padding="8,6" CornerRadius="6">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock Text="{Binding IconGlyph}"
+                                                           FontFamily="{StaticResource MaterialIcons}"
+                                                           FontSize="16"
+                                                           Foreground="{StaticResource Primary}"/>
+                                                <TextBlock Text="{Binding KindLabel}"
+                                                           FontSize="12" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- ── CENTER: Canvas Workspace ────────────────────────────── -->
+        <Border Grid.Column="1" Background="{StaticResource SurfaceContainer}"
+                Name="CanvasWorkspace">
+            <Grid>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+                    <LayoutTransformControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <LayoutTransformControl.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding CanvasZoom}" ScaleY="{Binding CanvasZoom}"/>
+                        </LayoutTransformControl.LayoutTransform>
+
+                        <!-- Ruler + canvas grid -->
+                        <Grid ColumnDefinitions="22,Auto" RowDefinitions="22,Auto"
+                              Margin="40">
+
+                            <!-- Corner cell -->
+                            <Border Grid.Row="0" Grid.Column="0"
+                                    Background="#F5F5FA"
+                                    BorderBrush="#D8D8E2" BorderThickness="0,0,1,1"/>
+
+                            <!-- Horizontal ruler -->
+                            <local:RulerControl Grid.Row="0" Grid.Column="1"
+                                               Orientation="Horizontal"
+                                               Length="{Binding CanvasWidth}"/>
+
+                            <!-- Vertical ruler -->
+                            <local:RulerControl Grid.Row="1" Grid.Column="0"
+                                               Orientation="Vertical"
+                                               Length="{Binding CanvasHeight}"/>
+
+                            <!-- Canvas with shadow -->
+                            <Border Grid.Row="1" Grid.Column="1"
+                                    BoxShadow="0 4 24 0 #33000000">
+
+                        <!-- Label canvas — exact size in pixels based on mm -->
+                        <Canvas Name="LabelCanvas"
+                                Width="{Binding CanvasWidth}"
+                                Height="{Binding CanvasHeight}"
+                                Background="White"
+                                ClipToBounds="True">
+
+                            <!-- Placed elements -->
+                            <ItemsControl Name="ElementsHost"
+                                          Canvas.Left="0" Canvas.Top="0"
+                                          Width="{Binding CanvasWidth}"
+                                          Height="{Binding CanvasHeight}"
+                                          ItemsSource="{Binding Elements}"
+                                          x:CompileBindings="False">
+                                <!-- ItemContainerTheme positions each generated ContentPresenter
+                                     on the inner Canvas via the ViewModel's Left/Top. -->
+                                <ItemsControl.ItemContainerTheme>
+                                    <ControlTheme TargetType="ContentPresenter">
+                                        <Setter Property="Margin"      Value="0"/>
+                                        <Setter Property="Padding"     Value="0"/>
+                                        <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                        <Setter Property="Canvas.Top"  Value="{Binding Top}"/>
+                                    </ControlTheme>
+                                </ItemsControl.ItemContainerTheme>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:CompileBindings="False">
+                                        <Border Name="ElementBorder"
+                                                Width="{Binding Width}"
+                                                Height="{Binding Height}"
+                                                BorderThickness="1"
+                                                CornerRadius="2"
+                                                Cursor="SizeAll">
+                                            <Border.BorderBrush>
+                                                <SolidColorBrush Color="{Binding IsSelected, Converter={x:Static vm:BoolToColorConverter.SelectionBorder}}"/>
+                                            </Border.BorderBrush>
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{Binding IsSelected, Converter={x:Static vm:BoolToColorConverter.SelectionFill}}"/>
+                                            </Border.Background>
+
+                                            <!-- Element content -->
+                                            <Grid>
+                                                <!-- Static Text -->
+                                                <TextBlock x:CompileBindings="False"
+                                                           IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsText}}"
+                                                           Text="{Binding Content}"
+                                                           FontFamily="{Binding FontFamily}"
+                                                           FontSize="{Binding FontSize}"
+                                                           FontWeight="{Binding Bold, Converter={x:Static vm:BoolToFontWeightConverter.Instance}}"
+                                                           FontStyle="{Binding Italic, Converter={x:Static vm:BoolToFontStyleConverter.Instance}}"
+                                                           TextDecorations="{Binding TextDecorationsList}"
+                                                           Background="{Binding TextBackgroundBrush}"
+                                                           TextWrapping="Wrap"
+                                                           Margin="3,2"/>
+
+                                                <!-- Dynamic Field -->
+                                                <Border x:CompileBindings="False"
+                                                        IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsDynamic}}"
+                                                        Background="#e6f0fa" CornerRadius="3" Margin="2">
+                                                    <TextBlock Text="{Binding Content}"
+                                                               FontFamily="Consolas,Monospace"
+                                                               FontSize="{Binding FontSize}"
+                                                               Foreground="{StaticResource Primary}"
+                                                               TextDecorations="{Binding TextDecorationsList}"
+                                                               Margin="4,2" TextWrapping="Wrap"/>
+                                                </Border>
+
+                                                <!-- Barcode -->
+                                                <Image x:CompileBindings="False"
+                                                       IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
+                                                       Source="{Binding BarcodeSource}"
+                                                       Stretch="Fill"/>
+
+                                                <!-- QR Code -->
+                                                <Image x:CompileBindings="False"
+                                                       IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
+                                                       Source="{Binding QrSource}"
+                                                       Stretch="Uniform"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+
+                                                <!-- Rectangle -->
+                                                <Border x:CompileBindings="False"
+                                                        IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsRect}}"
+                                                        BorderBrush="{StaticResource OnSurface}"
+                                                        BorderThickness="2" Margin="2"/>
+
+                                                <!-- Image -->
+                                                <Image x:CompileBindings="False"
+                                                       IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsImage}}"
+                                                       Source="{Binding ImageSource}"
+                                                       Stretch="Fill"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Safe-area margin guide -->
+                            <Rectangle IsVisible="{Binding HasCanvasMargin}"
+                                       IsHitTestVisible="False"
+                                       Canvas.Left="{Binding CanvasMarginPx}"
+                                       Canvas.Top="{Binding CanvasMarginPx}"
+                                       Width="{Binding CanvasSafeWidth}"
+                                       Height="{Binding CanvasSafeHeight}"
+                                       Stroke="#80FF6600"
+                                       StrokeThickness="1"
+                                       StrokeDashArray="4,3"
+                                       Fill="Transparent"/>
+                        </Canvas>
+
+                            </Border>
+                        </Grid>
+                    </LayoutTransformControl>
+                </ScrollViewer>
+
+                <!-- Canvas toolbar -->
+                <StackPanel Orientation="Horizontal" Spacing="8"
+                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                            Margin="0,0,0,16">
+                    <Border Background="{StaticResource SurfaceContainerLowest}"
+                            BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                            CornerRadius="24" Padding="12,6">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Button Background="Transparent" Padding="8,4" CornerRadius="16"
+                                    Command="{Binding BringForwardCommand}">
+                                <TextBlock Text="&#xe5d8;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="18" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Button>
+                            <Button Background="Transparent" Padding="8,4" CornerRadius="16"
+                                    Command="{Binding SendBackwardCommand}">
+                                <TextBlock Text="&#xe5db;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="18" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Button>
+                            <Border Width="1" Background="{StaticResource OutlineVariant}" Margin="4,0"/>
+                            <Button Background="Transparent" Padding="8,4" CornerRadius="16"
+                                    Command="{Binding DeleteSelectedCommand}">
+                                <TextBlock Text="&#xe872;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="18" Foreground="#dc2626"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Margin adjustment -->
+                    <Border Background="{StaticResource SurfaceContainerLowest}"
+                            BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                            CornerRadius="24" Padding="14,6">
+                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <TextBlock Text="MARGIN" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"
+                                       VerticalAlignment="Center"/>
+                            <Slider Value="{Binding CanvasMarginMm}" Minimum="0" Maximum="10"
+                                    Width="100" VerticalAlignment="Center"
+                                    Foreground="{StaticResource Primary}"/>
+                            <TextBlock Text="{Binding CanvasMarginMmLabel}" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource Primary}" VerticalAlignment="Center"
+                                       MinWidth="30"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Zoom control -->
+                    <Border Background="{StaticResource SurfaceContainerLowest}"
+                            BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                            CornerRadius="24" Padding="6,4">
+                        <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                            <Button Background="Transparent" Padding="6,4" CornerRadius="16"
+                                    Command="{Binding ZoomOutCommand}">
+                                <TextBlock Text="&#xe15b;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="16" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Button>
+                            <Button Background="Transparent" Padding="6,4" CornerRadius="16"
+                                    Command="{Binding ZoomResetCommand}">
+                                <TextBlock Text="{Binding CanvasZoomLabel}" FontSize="11" FontWeight="Bold"
+                                           Foreground="{StaticResource OnSurface}" MinWidth="36"
+                                           TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                            <Button Background="Transparent" Padding="6,4" CornerRadius="16"
+                                    Command="{Binding ZoomInCommand}">
+                                <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="16" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Size badge top-right -->
+                <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="16"
+                        Background="{StaticResource SurfaceContainerLowest}"
+                        BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1"
+                        CornerRadius="6" Padding="10,4">
+                    <TextBlock FontSize="11" FontFamily="Consolas,Monospace"
+                               Foreground="{StaticResource OnSurfaceVariant}">
+                        <Run Text="{Binding LabelWidth, StringFormat='{}{0:0.#}'}"/>
+                        <Run Text=" × "/>
+                        <Run Text="{Binding LabelHeight, StringFormat='{}{0:0.#}'}"/>
+                        <Run Text=" mm"/>
+                    </TextBlock>
+                </Border>
+
+            </Grid>
+        </Border>
+
+        <!-- ── RIGHT: Properties Panel ─────────────────────────────── -->
+        <Border Grid.Column="2" Background="{StaticResource SurfaceContainerHigh}"
+                BorderBrush="{StaticResource OutlineVariant}" BorderThickness="1,0,0,0">
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <!-- Header -->
+                <Border Grid.Row="0" BorderBrush="{StaticResource OutlineVariant}"
+                        BorderThickness="0,0,0,1" Padding="16,14">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="PROPERTIES" FontSize="11" FontWeight="Bold"
+                                   Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                        <Border Grid.Column="1" Background="{StaticResource PrimaryContainer}"
+                                CornerRadius="4" Padding="8,2"
+                                IsVisible="{Binding HasSelection}">
+                            <TextBlock Text="{Binding SelectedElement.KindLabel, FallbackValue='', TargetNullValue=''}"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnPrimaryContainer}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Empty state -->
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center"
+                            VerticalAlignment="Center" Spacing="8"
+                            IsVisible="{Binding !HasSelection}">
+                    <TextBlock Text="&#xe8d4;" FontFamily="{StaticResource MaterialIcons}"
+                               FontSize="40" Foreground="{StaticResource OutlineVariant}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Select an element" FontSize="13"
+                               Foreground="{StaticResource OnSurfaceVariant}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="or add one from the library"
+                               FontSize="11" Foreground="{StaticResource OutlineVariant}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Properties when element is selected -->
+                <ScrollViewer Grid.Row="1" Padding="20"
+                              IsVisible="{Binding HasSelection}"
+                              x:CompileBindings="False">
+                    <StackPanel Spacing="20"
+                                DataContext="{Binding SelectedElement}">
+
+                        <!-- Geometry -->
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="GEOMETRY" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <Grid ColumnDefinitions="*,8,*" RowDefinitions="Auto,8,Auto">
+                                <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="X (mm)" FontSize="9" FontWeight="Bold"
+                                               Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    <TextBox Text="{Binding XMm, StringFormat='{}{0:0.##}'}"
+                                             FontFamily="Consolas,Monospace" FontSize="12"
+                                             Background="{StaticResource SurfaceContainerLowest}"
+                                             BorderBrush="{StaticResource OutlineVariant}"
+                                             CornerRadius="6" Padding="8,6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="2" Spacing="4">
+                                    <TextBlock Text="Y (mm)" FontSize="9" FontWeight="Bold"
+                                               Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    <TextBox Text="{Binding YMm, StringFormat='{}{0:0.##}'}"
+                                             FontFamily="Consolas,Monospace" FontSize="12"
+                                             Background="{StaticResource SurfaceContainerLowest}"
+                                             BorderBrush="{StaticResource OutlineVariant}"
+                                             CornerRadius="6" Padding="8,6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="W (mm)" FontSize="9" FontWeight="Bold"
+                                               Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    <TextBox Text="{Binding WidthMm, StringFormat='{}{0:0.##}'}"
+                                             FontFamily="Consolas,Monospace" FontSize="12"
+                                             Background="{StaticResource SurfaceContainerLowest}"
+                                             BorderBrush="{StaticResource OutlineVariant}"
+                                             CornerRadius="6" Padding="8,6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="2" Spacing="4">
+                                    <TextBlock Text="H (mm)" FontSize="9" FontWeight="Bold"
+                                               Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    <TextBox Text="{Binding HeightMm, StringFormat='{}{0:0.##}'}"
+                                             FontFamily="Consolas,Monospace" FontSize="12"
+                                             Background="{StaticResource SurfaceContainerLowest}"
+                                             BorderBrush="{StaticResource OutlineVariant}"
+                                             CornerRadius="6" Padding="8,6"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Content (Text / Dynamic) -->
+                        <StackPanel Spacing="6"
+                                    IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsTextOrDynamic}}">
+                            <TextBlock Text="CONTENT" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBox Text="{Binding Content}"
+                                     AcceptsReturn="True" TextWrapping="Wrap" Height="60"
+                                     Background="{StaticResource SurfaceContainerLowest}"
+                                     BorderBrush="{StaticResource OutlineVariant}"
+                                     CornerRadius="6" Padding="8,6" FontSize="12"/>
+                        </StackPanel>
+
+                        <!-- Barcode value -->
+                        <StackPanel Spacing="6"
+                                    IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}">
+                            <TextBlock Text="BARCODE VALUE" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBox Text="{Binding BarcodeValue}"
+                                     FontFamily="Consolas,Monospace"
+                                     Background="{StaticResource SurfaceContainerLowest}"
+                                     BorderBrush="{StaticResource OutlineVariant}"
+                                     CornerRadius="6" Padding="8,6" FontSize="12"/>
+                        </StackPanel>
+
+                        <!-- QR value -->
+                        <StackPanel Spacing="6"
+                                    IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}">
+                            <TextBlock Text="QR VALUE" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <TextBox Text="{Binding Content}"
+                                     AcceptsReturn="False"
+                                     Background="{StaticResource SurfaceContainerLowest}"
+                                     BorderBrush="{StaticResource OutlineVariant}"
+                                     CornerRadius="6" Padding="8,6" FontSize="12"/>
+                        </StackPanel>
+
+                        <!-- Typography (Text / Dynamic only) -->
+                        <StackPanel Spacing="10"
+                                    IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsTextOrDynamic}}">
+                            <TextBlock Text="TYPOGRAPHY" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <ComboBox SelectedItem="{Binding FontFamily}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{StaticResource SurfaceContainerLowest}"
+                                      BorderBrush="{StaticResource OutlineVariant}"
+                                      CornerRadius="6" FontSize="12">
+                                <x:String>Inter</x:String>
+                                <x:String>Manrope</x:String>
+                                <x:String>Consolas, Monospace</x:String>
+                            </ComboBox>
+                            <Grid ColumnDefinitions="*,8,Auto">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding FontSize, StringFormat='{}{0:0.#}'}"
+                                         FontFamily="Consolas,Monospace" FontSize="12"
+                                         Background="{StaticResource SurfaceContainerLowest}"
+                                         BorderBrush="{StaticResource OutlineVariant}"
+                                         CornerRadius="6" Padding="8,6"/>
+                                <TextBlock Grid.Column="2" Text="pt" FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ToggleButton IsChecked="{Binding Bold}"
+                                             CornerRadius="6" Padding="12,6"
+                                             Background="{StaticResource SurfaceContainerLowest}">
+                                    <TextBlock Text="&#xe238;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="16"/>
+                                </ToggleButton>
+                                <ToggleButton IsChecked="{Binding Italic}"
+                                             CornerRadius="6" Padding="12,6"
+                                             Background="{StaticResource SurfaceContainerLowest}">
+                                    <TextBlock Text="&#xe23f;" FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="16"/>
+                                </ToggleButton>
+                                <ToggleButton IsChecked="{Binding Underline}"
+                                             CornerRadius="6" Padding="12,6"
+                                             Background="{StaticResource SurfaceContainerLowest}">
+                                    <TextBlock Text="U" FontWeight="Bold" FontSize="14"
+                                               TextDecorations="Underline"/>
+                                </ToggleButton>
+                                <ToggleButton IsChecked="{Binding Strikethrough}"
+                                             CornerRadius="6" Padding="12,6"
+                                             Background="{StaticResource SurfaceContainerLowest}">
+                                    <TextBlock Text="S" FontWeight="Bold" FontSize="14"
+                                               TextDecorations="Strikethrough"/>
+                                </ToggleButton>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Text Background -->
+                        <StackPanel Spacing="8"
+                                    IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsText}}">
+                            <TextBlock Text="TEXT BACKGROUND" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="1"/>
+                            <WrapPanel Orientation="Horizontal">
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter=""
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="None" Margin="0,0,4,4">
+                                    <Border Background="White" BorderBrush="{StaticResource OutlineVariant}"
+                                            BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="∅" FontSize="11"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource OnSurfaceVariant}"/>
+                                    </Border>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#FFFF00"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Yellow" Margin="0,0,4,4">
+                                    <Border Background="#FFFF00" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#FFD180"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Amber" Margin="0,0,4,4">
+                                    <Border Background="#FFD180" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#B9F6CA"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Green" Margin="0,0,4,4">
+                                    <Border Background="#B9F6CA" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#B3E5FC"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Blue" Margin="0,0,4,4">
+                                    <Border Background="#B3E5FC" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#F8BBD0"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Pink" Margin="0,0,4,4">
+                                    <Border Background="#F8BBD0" CornerRadius="3"/>
+                                </Button>
+                                <Button Command="{Binding SetTextBackgroundCommand}" CommandParameter="#FF8A80"
+                                        Width="28" Height="28" Padding="3" CornerRadius="6"
+                                        Background="Transparent" ToolTip.Tip="Red" Margin="0,0,4,4">
+                                    <Border Background="#FF8A80" CornerRadius="3"/>
+                                </Button>
+                            </WrapPanel>
+                            <TextBox Text="{Binding TextBackground}"
+                                     Watermark="#RRGGBB (e.g. #FFFF00)"
+                                     FontFamily="Consolas,Monospace" FontSize="11"
+                                     Background="{StaticResource SurfaceContainerLowest}"
+                                     BorderBrush="{StaticResource OutlineVariant}"
+                                     CornerRadius="6" Padding="8,5"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Bottom action row -->
+                <Border Grid.Row="2" BorderBrush="{StaticResource OutlineVariant}"
+                        BorderThickness="0,1,0,0" Padding="16">
+                    <Grid ColumnDefinitions="*,8,*">
+                        <Button Grid.Column="0"
+                                Command="{Binding #EditorRoot.((vm:EditorViewModel)DataContext).SaveCommand}"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}"
+                                CornerRadius="8" Padding="0,10">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="&#xe161;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="Save" FontWeight="SemiBold" FontSize="13"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2"
+                                Command="{Binding #EditorRoot.((vm:EditorViewModel)DataContext).NavigateToPrintPreviewCommand}"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                Background="{StaticResource SurfaceContainerHighest}"
+                                Foreground="{StaticResource OnSurface}"
+                                CornerRadius="8" Padding="0,10">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="&#xe8f4;" FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="Print" FontWeight="SemiBold" FontSize="13"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</UserControl>

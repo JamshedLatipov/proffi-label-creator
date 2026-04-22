@@ -1,0 +1,348 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="LabelStudio.Views.PrintPreviewView"
+             x:DataType="vm:PrintPreviewViewModel">
+
+    <Grid ColumnDefinitions="*,320">
+        <!-- Canvas Section -->
+        <Border Grid.Column="0" Background="{StaticResource SurfaceContainer}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <StackPanel Margin="0,0,0,32">
+                        <TextBlock Text="Print Preview" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="24" Foreground="{StaticResource OnSurface}"/>
+                        <TextBlock Text="{Binding Editor.ProjectName, FallbackValue='Label Preview'}"
+                                   FontSize="14" Foreground="{StaticResource OnSurfaceVariant}" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Actual label canvas rendered from editor elements -->
+                    <Viewbox Stretch="Uniform" MaxWidth="600" MaxHeight="400">
+                        <Border BoxShadow="0 4 6 -1 #1A000000, 0 2 4 -1 #0F000000"
+                                Padding="0">
+                            <Canvas x:CompileBindings="False"
+                                    Width="{Binding Editor.CanvasWidth}"
+                                    Height="{Binding Editor.CanvasHeight}"
+                                    Background="White"
+                                    ClipToBounds="True">
+                                <ItemsControl Canvas.Left="0" Canvas.Top="0"
+                                              Width="{Binding Editor.CanvasWidth}"
+                                              Height="{Binding Editor.CanvasHeight}"
+                                              Padding="0"
+                                              ItemsSource="{Binding Editor.Elements}"
+                                              x:CompileBindings="False">
+                                    <ItemsControl.ItemContainerTheme>
+                                        <ControlTheme TargetType="ContentPresenter">
+                                            <Setter Property="Margin"      Value="0"/>
+                                            <Setter Property="Padding"     Value="0"/>
+                                            <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                            <Setter Property="Canvas.Top"  Value="{Binding Top}"/>
+                                        </ControlTheme>
+                                    </ItemsControl.ItemContainerTheme>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:CompileBindings="False">
+                                            <Border Width="{Binding Width}"
+                                                    Height="{Binding Height}"
+                                                    BorderThickness="0"
+                                                    CornerRadius="0">
+
+                                                <Grid>
+                                                    <!-- Static Text -->
+                                                    <TextBlock IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsText}}"
+                                                               Text="{Binding Content}"
+                                                               FontFamily="{Binding FontFamily}"
+                                                               FontSize="{Binding FontSize}"
+                                                               FontWeight="{Binding Bold, Converter={x:Static vm:BoolToFontWeightConverter.Instance}}"
+                                                               FontStyle="{Binding Italic, Converter={x:Static vm:BoolToFontStyleConverter.Instance}}"
+                                                               TextDecorations="{Binding TextDecorationsList}"
+                                                               Background="{Binding TextBackgroundBrush}"
+                                                               TextWrapping="Wrap"
+                                                               Margin="3,2"/>
+
+                                                    <!-- Dynamic Field -->
+                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsDynamic}}"
+                                                            Background="#e6f0fa" CornerRadius="3" Margin="2">
+                                                        <TextBlock Text="{Binding DisplayContent}"
+                                                                   FontFamily="Consolas,Monospace"
+                                                                   FontSize="{Binding FontSize}"
+                                                                   Foreground="{StaticResource Primary}"
+                                                                   TextDecorations="{Binding TextDecorationsList}"
+                                                                   Margin="4,2" TextWrapping="Wrap"/>
+                                                    </Border>
+
+                                                    <!-- Barcode -->
+                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
+                                                           Source="{Binding BarcodeSource}"
+                                                           Stretch="Fill"/>
+
+                                                    <!-- QR Code -->
+                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
+                                                           Source="{Binding QrSource}"
+                                                           Stretch="Uniform"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+
+                                                    <!-- Rectangle -->
+                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsRect}}"
+                                                            BorderBrush="{StaticResource OnSurface}"
+                                                            BorderThickness="2" Margin="2"/>
+
+                                                    <!-- Image -->
+                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsImage}}"
+                                                           Source="{Binding ImageSource}"
+                                                           Stretch="Fill"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Safe-area margin guide -->
+                                <Rectangle IsVisible="{Binding ShowMarginGuide, x:CompileBindings=False}"
+                                           IsHitTestVisible="False"
+                                           Canvas.Left="{Binding MarginPx, x:CompileBindings=False}"
+                                           Canvas.Top="{Binding MarginPx, x:CompileBindings=False}"
+                                           Width="{Binding PreviewSafeWidth, x:CompileBindings=False}"
+                                           Height="{Binding PreviewSafeHeight, x:CompileBindings=False}"
+                                           Stroke="#80FF6600"
+                                           StrokeThickness="1"
+                                           StrokeDashArray="4,3"
+                                           Fill="Transparent"/>
+                            </Canvas>
+                        </Border>
+                    </Viewbox>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Right Panel (Print Settings) -->
+        <Border Grid.Column="1" Background="{StaticResource SurfaceContainerHigh}" Padding="24">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Row="0" Text="Print Settings" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource OnSurface}" Margin="0,0,0,16"/>
+
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Spacing="20">
+
+                        <!-- ── PRODUCT LOOKUP ─────────────────────────────── -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="PRODUCT LOOKUP" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+
+                            <!-- Search input -->
+                            <Grid ColumnDefinitions="*,40">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding ArticleInput, Mode=TwoWay}"
+                                         Watermark="Article or product name"
+                                         IsEnabled="{Binding !IsLookingUp}"
+                                         Background="{StaticResource SurfaceContainerLowest}"
+                                         BorderThickness="0"
+                                         CornerRadius="6,0,0,6"
+                                         Padding="10,0"
+                                         FontSize="13"
+                                         VerticalContentAlignment="Center"
+                                         Height="40">
+                                    <TextBox.KeyBindings>
+                                        <KeyBinding Gesture="Return" Command="{Binding LookupProductCommand}"/>
+                                    </TextBox.KeyBindings>
+                                </TextBox>
+                                <Button Grid.Column="1"
+                                        Command="{Binding LookupProductCommand}"
+                                        IsEnabled="{Binding !IsLookingUp}"
+                                        Background="{StaticResource Primary}"
+                                        Width="40" Height="40"
+                                        CornerRadius="0,6,6,0"
+                                        Padding="0">
+                                    <TextBlock Text="&#xe31b;"
+                                               FontFamily="{StaticResource MaterialIcons}"
+                                               FontSize="20"
+                                               Foreground="{StaticResource OnPrimary}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+
+                            <!-- Loading indicator -->
+                            <TextBlock Text="Searching…"
+                                       FontSize="11"
+                                       Foreground="{StaticResource OnSurfaceVariant}"
+                                       IsVisible="{Binding IsLookingUp}"/>
+
+                            <!-- Error -->
+                            <Border Background="#FEF2F2"
+                                    CornerRadius="6"
+                                    Padding="10,8"
+                                    IsVisible="{Binding LookupError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                <TextBlock Text="{Binding LookupError}"
+                                           Foreground="#DC2626"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Suggestion list (no exact match found) -->
+                            <StackPanel IsVisible="{Binding HasSuggestions}" Spacing="4">
+                                <TextBlock Text="Multiple matches — select one:"
+                                           FontSize="11"
+                                           Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <Border Background="{StaticResource SurfaceContainerLowest}"
+                                        CornerRadius="8"
+                                        Padding="4">
+                                    <ItemsControl ItemsSource="{Binding Suggestions}"
+                                                  x:CompileBindings="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:CompileBindings="False">
+                                                <Button Background="Transparent"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Left"
+                                                        Padding="10,8"
+                                                        CornerRadius="6"
+                                                        Command="{Binding $parent[UserControl].DataContext.SelectSuggestionCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock Text="&#xe4e9;"
+                                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                                   Foreground="{StaticResource OnSurfaceVariant}"
+                                                                   FontSize="14"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   FontSize="12"
+                                                                   VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Found product info (exact match or suggestion selected) -->
+                            <Border Background="#F0FDF4"
+                                    BorderBrush="#BBF7D0"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="12"
+                                    IsVisible="{Binding HasProduct}">
+                                <StackPanel Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,4">
+                                        <TextBlock Text="&#xe876;"
+                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                   Foreground="#16A34A"
+                                                   FontSize="16"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ProductName}"
+                                                   FontWeight="Bold"
+                                                   FontSize="13"
+                                                   Foreground="#166534"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="Dynamic fields will use this product when printing."
+                                               FontSize="10"
+                                               Foreground="#16A34A"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                    <StackPanel Spacing="8">
+                            <TextBlock Text="TARGET PRINTER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                            <ComboBox ItemsSource="{Binding Printers}" SelectedItem="{Binding SelectedPrinter}" HorizontalAlignment="Stretch" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" CornerRadius="6" FontSize="14" FontWeight="Medium"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                <Border Width="8" Height="8" CornerRadius="4" Background="#10b981"/>
+                                <TextBlock Text="Online • Ready to print" FontSize="11" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="QUANTITY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Button Grid.Column="0" Command="{Binding DecreaseCopiesCommand}" Background="{StaticResource SurfaceContainerLowest}" Width="40" Height="40" CornerRadius="6">
+                                    <TextBlock Text="&#xe15b;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <TextBox Grid.Column="1" Text="{Binding Copies}" TextAlignment="Center" FontWeight="Bold" FontSize="14" Background="{StaticResource SurfaceContainerLowest}" BorderThickness="0" Margin="8,0" CornerRadius="6" VerticalContentAlignment="Center"/>
+                                <Button Grid.Column="2" Command="{Binding IncreaseCopiesCommand}" Background="{StaticResource SurfaceContainerLowest}" Width="40" Height="40" CornerRadius="6">
+                                    <TextBlock Text="&#xe145;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="ORIENTATION" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                            <Grid ColumnDefinitions="*,*">
+                                <Border Grid.Column="0" Background="{StaticResource SurfaceContainerLowest}" BorderBrush="{StaticResource Primary}" BorderThickness="2" CornerRadius="6" Padding="12" Margin="0,0,4,0">
+                                    <StackPanel HorizontalAlignment="Center" Spacing="8">
+                                        <TextBlock Text="&#xe3f7;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource Primary}" FontSize="24" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Landscape" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" Background="{StaticResource SurfaceContainerLow}" BorderBrush="Transparent" BorderThickness="2" CornerRadius="6" Padding="12" Margin="4,0,0,0">
+                                    <StackPanel HorizontalAlignment="Center" Spacing="8">
+                                        <TextBlock Text="&#xe3f8;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="24" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Portrait" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource OnSurfaceVariant}" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="MARGIN ADJUSTMENT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OnSurfaceVariant}" LetterSpacing="2"/>
+                                <TextBlock Grid.Column="1" Text="{Binding MarginMmLabel}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Primary}"/>
+                            </Grid>
+                            <Slider Value="{Binding MarginMm}" Minimum="0" Maximum="10" Foreground="{StaticResource Primary}"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="0mm" FontSize="9" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Grid.Column="1" Text="10mm" FontSize="9" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Spacing="12" Margin="0,16,0,0">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="Mirror horizontally" FontSize="12" FontWeight="Medium"/>
+                                <ToggleSwitch Grid.Column="1" IsChecked="False"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="High-density ink (300dpi)" FontSize="12" FontWeight="Medium"/>
+                                <ToggleSwitch Grid.Column="1" IsChecked="True"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" Spacing="12" Margin="0,16,0,0">
+                    <Border Background="#e6f0fa" BorderBrush="#ccdbf2" BorderThickness="1" CornerRadius="12" Padding="16"
+                            IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#xe88e;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource Primary}"/>
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Primary}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Button Command="{Binding PrintCommand}"
+                            IsEnabled="{Binding !IsPrinting}"
+                            Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="16" CornerRadius="12">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center"
+                                       IsVisible="{Binding !IsPrinting}"/>
+                            <TextBlock Text="&#xe9d0;" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center"
+                                       IsVisible="{Binding IsPrinting}"/>
+                            <TextBlock Text="Send to Printer" FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                       IsVisible="{Binding !IsPrinting}"/>
+                            <TextBlock Text="Printing..." FontFamily="{StaticResource ManropeFont}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                       IsVisible="{Binding IsPrinting}"/>
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="Project is auto-saved before printing." FontSize="10" FontWeight="Medium" Foreground="{StaticResource OnSurfaceVariant}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+
+</UserControl>

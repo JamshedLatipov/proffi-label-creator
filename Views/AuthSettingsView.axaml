@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="LabelStudio.Views.AuthSettingsView"
+             x:DataType="vm:AuthSettingsViewModel"
+             Background="{StaticResource Background}">
+
+    <Grid ColumnDefinitions="*, *">
+        <!-- Left branding panel (same as login) -->
+        <Border Grid.Column="0"
+                Background="{StaticResource Primary}"
+                CornerRadius="0,24,24,0"
+                Padding="48">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="24">
+                <Border Width="80" Height="80" CornerRadius="16"
+                        Background="{StaticResource OnPrimary}"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#xea3b;"
+                               FontFamily="{StaticResource MaterialIcons}"
+                               Foreground="{StaticResource Primary}"
+                               FontSize="48"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Label Studio"
+                           FontFamily="{StaticResource ManropeFont}"
+                           FontSize="40"
+                           FontWeight="Black"
+                           Foreground="{StaticResource OnPrimary}"
+                           TextAlignment="Center"/>
+                <TextBlock Text="Connection Settings"
+                           FontSize="18"
+                           Foreground="{StaticResource OnPrimary}"
+                           Opacity="0.8"
+                           TextAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Right settings form -->
+        <Border Grid.Column="1" Padding="48">
+            <Grid>
+                <!-- Back button -->
+                <Button VerticalAlignment="Top"
+                        HorizontalAlignment="Left"
+                        Background="Transparent"
+                        Padding="10"
+                        CornerRadius="8"
+                        Command="{Binding BackCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="&#xe5c4;"
+                                   FontFamily="{StaticResource MaterialIcons}"
+                                   FontSize="20"
+                                   Foreground="{StaticResource OnSurfaceVariant}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Back"
+                                   Foreground="{StaticResource OnSurfaceVariant}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <StackPanel MaxWidth="380"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Stretch">
+
+                    <TextBlock Text="Connection Settings"
+                               FontFamily="{StaticResource ManropeFont}"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource OnSurface}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,8"/>
+                    <TextBlock Text="Configure your backend server URL"
+                               FontSize="14"
+                               Foreground="{StaticResource OnSurfaceVariant}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,32"/>
+
+                    <!-- Success message -->
+                    <Border Background="#F0FDF4"
+                            CornerRadius="8"
+                            Padding="12,10"
+                            Margin="0,0,0,16"
+                            IsVisible="{Binding SavedMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Text="{Binding SavedMessage}"
+                                   Foreground="#16A34A"
+                                   FontSize="13"/>
+                    </Border>
+
+                    <!-- Backend URL -->
+                    <TextBlock Text="Backend URL"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource OnSurface}"
+                               Margin="0,0,0,6"/>
+                    <TextBox Text="{Binding BackendUrl, Mode=TwoWay}"
+                             Watermark="https://api.example.com"
+                             Background="White"
+                             BorderBrush="{StaticResource OutlineVariant}"
+                             BorderThickness="1"
+                             CornerRadius="8"
+                             Padding="14,12"
+                             FontSize="15"
+                             Margin="0,0,0,28"/>
+
+                    <!-- Save button -->
+                    <Button Background="{StaticResource Primary}"
+                            Foreground="{StaticResource OnPrimary}"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            CornerRadius="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Height="48"
+                            Command="{Binding SaveCommand}">
+                        Save Settings
+                    </Button>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
