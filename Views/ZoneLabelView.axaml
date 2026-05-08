@@ -1,0 +1,414 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LabelStudio.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="860"
+             x:Class="LabelStudio.Views.ZoneLabelView"
+             x:DataType="vm:ZoneLabelViewModel"
+             Background="{StaticResource Background}">
+
+    <Grid ColumnDefinitions="240,*">
+
+        <!-- ═══ Left accent sidebar ═══ -->
+        <Border Grid.Column="0" Background="{StaticResource Primary}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Spacing="0" Margin="28,40">
+
+                <!-- Icon -->
+                <Border Width="72" Height="72" CornerRadius="18"
+                        Background="{StaticResource OnPrimary}"
+                        HorizontalAlignment="Center" Margin="0,0,0,18">
+                    <TextBlock Text="&#xe044;"
+                               FontFamily="{StaticResource MaterialIcons}"
+                               Foreground="{StaticResource Primary}"
+                               FontSize="40"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <TextBlock Text="QR-метки ячеек"
+                           FontFamily="{StaticResource ManropeFont}"
+                           FontSize="20" FontWeight="Black"
+                           Foreground="{StaticResource OnPrimary}"
+                           TextAlignment="Center"
+                           Margin="0,0,0,28"/>
+
+                <!-- Step list -->
+                <StackPanel Spacing="0">
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="26" Height="26" CornerRadius="13"
+                                Background="{StaticResource OnPrimary}">
+                            <TextBlock Text="1" FontSize="12" FontWeight="Bold"
+                                       Foreground="{StaticResource Primary}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Склад" FontSize="13"
+                                   Foreground="{StaticResource OnPrimary}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Border Width="2" Height="12" Background="{StaticResource OnPrimary}"
+                            Opacity="0.25" HorizontalAlignment="Left" Margin="12,0"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="26" Height="26" CornerRadius="13"
+                                Background="{StaticResource OnPrimary}" Opacity="0.7">
+                            <TextBlock Text="2" FontSize="12" FontWeight="Bold"
+                                       Foreground="{StaticResource Primary}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Зона" FontSize="13" Opacity="0.75"
+                                   Foreground="{StaticResource OnPrimary}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Border Width="2" Height="12" Background="{StaticResource OnPrimary}"
+                            Opacity="0.25" HorizontalAlignment="Left" Margin="12,0"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="26" Height="26" CornerRadius="13"
+                                Background="{StaticResource OnPrimary}" Opacity="0.55">
+                            <TextBlock Text="3" FontSize="12" FontWeight="Bold"
+                                       Foreground="{StaticResource Primary}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Полка" FontSize="13" Opacity="0.6"
+                                   Foreground="{StaticResource OnPrimary}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Border Width="2" Height="12" Background="{StaticResource OnPrimary}"
+                            Opacity="0.25" HorizontalAlignment="Left" Margin="12,0"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="26" Height="26" CornerRadius="13"
+                                Background="{StaticResource OnPrimary}" Opacity="0.4">
+                            <TextBlock Text="4" FontSize="12" FontWeight="Bold"
+                                       Foreground="{StaticResource Primary}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Ячейка" FontSize="13" Opacity="0.45"
+                                   Foreground="{StaticResource OnPrimary}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ Right area: stepper form + summary panel ═══ -->
+        <Grid Grid.Column="1" ColumnDefinitions="*,290">
+
+            <!-- ── Stepper form (scrollable) ── -->
+            <ScrollViewer Grid.Column="0"
+                          Padding="48,40,32,48"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="0" MaxWidth="520">
+
+                    <!-- Page header -->
+                    <TextBlock Text="Создать QR-этикетку"
+                               FontFamily="{StaticResource ManropeFont}"
+                               FontWeight="Bold" FontSize="26"
+                               Foreground="{StaticResource OnSurface}"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="Пройдите по шагам, чтобы выбрать ячейку и напечатать метку."
+                               FontSize="14"
+                               Foreground="{StaticResource OnSurfaceVariant}"
+                               Margin="0,0,0,36"/>
+
+                    <!-- ─ Step 1: Склад ─ -->
+                    <Grid ColumnDefinitions="52,*">
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <Border Width="36" Height="36" CornerRadius="18"
+                                    Background="{StaticResource Primary}">
+                                <TextBlock Text="1" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource OnPrimary}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <Border Width="2" Background="#dde3ea"
+                                    HorizontalAlignment="Center" Height="52"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="СКЛАД"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.5"
+                                       Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <ComboBox ItemsSource="{Binding Warehouses}"
+                                      SelectedItem="{Binding SelectedWarehouse}"
+                                      PlaceholderText="Выберите склад…"
+                                      HorizontalAlignment="Stretch"
+                                      Height="44"
+                                      IsEnabled="{Binding !IsLoadingWarehouses}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- ─ Step 2: Зона ─ -->
+                    <Grid ColumnDefinitions="52,*">
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <Border Width="36" Height="36" CornerRadius="18"
+                                    Background="{StaticResource Primary}">
+                                <TextBlock Text="2" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource OnPrimary}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <Border Width="2" Background="#dde3ea"
+                                    HorizontalAlignment="Center" Height="52"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="ЗОНА"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.5"
+                                       Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <ComboBox ItemsSource="{Binding Zones}"
+                                      SelectedItem="{Binding SelectedZone}"
+                                      PlaceholderText="Выберите зону…"
+                                      HorizontalAlignment="Stretch"
+                                      Height="44"
+                                      IsEnabled="{Binding !IsLoadingZones}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- ─ Step 3: Полка ─ -->
+                    <Grid ColumnDefinitions="52,*">
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <Border Width="36" Height="36" CornerRadius="18"
+                                    Background="{StaticResource Primary}">
+                                <TextBlock Text="3" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource OnPrimary}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <Border Width="2" Background="#dde3ea"
+                                    HorizontalAlignment="Center" Height="52"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="ПОЛКА"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.5"
+                                       Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <ComboBox ItemsSource="{Binding Shelves}"
+                                      SelectedItem="{Binding SelectedShelf}"
+                                      PlaceholderText="Выберите полку…"
+                                      HorizontalAlignment="Stretch"
+                                      Height="44"
+                                      IsEnabled="{Binding !IsLoadingShelves}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- ─ Step 4: Ячейка ─ -->
+                    <Grid ColumnDefinitions="52,*">
+                        <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18"
+                                Background="{StaticResource Primary}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="4" FontSize="14" FontWeight="Bold"
+                                       Foreground="{StaticResource OnPrimary}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="ЯЧЕЙКА"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.5"
+                                       Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <ComboBox ItemsSource="{Binding Boxes}"
+                                      SelectedItem="{Binding SelectedBox}"
+                                      PlaceholderText="Выберите ячейку…"
+                                      HorizontalAlignment="Stretch"
+                                      Height="44"
+                                      IsEnabled="{Binding !IsLoadingBoxes}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Status message -->
+                    <Border Background="{StaticResource SurfaceContainerHigh}"
+                            CornerRadius="10" Padding="14,10"
+                            Margin="0,24,0,0"
+                            IsVisible="{Binding StatusMessage, Converter={x:Static vm:NullToBoolConverter.IsNotEmpty}}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="&#xe88e;"
+                                       FontFamily="{StaticResource MaterialIcons}"
+                                       Foreground="{StaticResource OnSurface}"
+                                       FontSize="18" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       FontSize="13"
+                                       Foreground="{StaticResource OnSurface}"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ── Summary + Print panel ── -->
+            <Border Grid.Column="1"
+                    Background="{StaticResource SurfaceContainerLow}"
+                    BorderBrush="#dde3ea"
+                    BorderThickness="1,0,0,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="24,32,24,24">
+                    <StackPanel Spacing="20">
+
+                        <!-- QR Preview -->
+                        <StackPanel Spacing="12" HorizontalAlignment="Center">
+
+                            <TextBlock Text="ПРЕДПРОСМОТР"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.2"
+                                       Foreground="{StaticResource OnSurfaceVariant}"
+                                       HorizontalAlignment="Center"/>
+
+                            <Border CornerRadius="16" Background="White"
+                                    Width="216" Height="216"
+                                    HorizontalAlignment="Center"
+                                    BoxShadow="0 2 12 0 #18000000">
+                                <Panel>
+                                    <!-- Placeholder -->
+                                    <StackPanel VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Spacing="10"
+                                                IsVisible="{Binding QrPreview, Converter={x:Static vm:NullToBoolConverter.IsNull}}">
+                                        <TextBlock Text="&#xe147;"
+                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                   FontSize="56" Opacity="0.13"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{StaticResource OnSurface}"/>
+                                        <TextBlock Text="Выберите ячейку"
+                                                   FontSize="12" Opacity="0.3"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{StaticResource OnSurface}"/>
+                                    </StackPanel>
+                                    <!-- QR image -->
+                                    <Image Source="{Binding QrPreview}"
+                                           Width="188" Height="188"
+                                           Stretch="Uniform" Margin="14"
+                                           IsVisible="{Binding QrPreview, Converter={x:Static vm:NullToBoolConverter.Instance}}"/>
+                                </Panel>
+                            </Border>
+
+                            <!-- Box info -->
+                            <StackPanel Spacing="4" HorizontalAlignment="Center"
+                                        IsVisible="{Binding SelectedBox, Converter={x:Static vm:NullToBoolConverter.Instance}}">
+                                <TextBlock Text="{Binding SelectedBox.LocationPath}"
+                                           FontFamily="{StaticResource ManropeFont}"
+                                           FontWeight="Bold" FontSize="15"
+                                           Foreground="{StaticResource OnSurface}"
+                                           HorizontalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center"/>
+                                <TextBlock Text="{Binding SelectedBox.Name}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource OnSurfaceVariant}"
+                                           HorizontalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Separator -->
+                        <Border Height="1" Background="#dde3ea"/>
+
+                        <!-- Printer -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="ПРИНТЕР"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.2"
+                                       Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <ComboBox ItemsSource="{Binding SystemPrinters}"
+                                      SelectedItem="{Binding SelectedPrinter}"
+                                      PlaceholderText="Выберите принтер…"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <!-- Label size -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="РАЗМЕР, ММ"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.2"
+                                       Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <Grid ColumnDefinitions="*,Auto,*">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding LabelWidth}"
+                                         TextAlignment="Center"
+                                         Height="40"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="×"
+                                           FontSize="16"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0"
+                                           Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBox Grid.Column="2"
+                                         Text="{Binding LabelHeight}"
+                                         TextAlignment="Center"
+                                         Height="40"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Copies -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="КОЛИЧЕСТВО КОПИЙ"
+                                       FontSize="11" FontWeight="Bold" LetterSpacing="1.2"
+                                       Foreground="{StaticResource OnSurfaceVariant}"/>
+                            <Border Background="White" CornerRadius="10"
+                                    BorderBrush="#dde3ea" BorderThickness="1"
+                                    Padding="4" Height="44">
+                                <Grid ColumnDefinitions="40,*,40">
+                                    <Button Grid.Column="0"
+                                            Command="{Binding DecreaseCopiesCommand}"
+                                            Content="−"
+                                            Width="36" Height="36"
+                                            Padding="0"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Background="Transparent"
+                                            CornerRadius="8"
+                                            FontSize="20" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Copies}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold" FontSize="20"
+                                               Foreground="{StaticResource OnSurface}"/>
+                                    <Button Grid.Column="2"
+                                            Command="{Binding IncreaseCopiesCommand}"
+                                            Content="+"
+                                            Width="36" Height="36"
+                                            Padding="0"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Background="Transparent"
+                                            CornerRadius="8"
+                                            FontSize="20" FontWeight="Bold"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Print button -->
+                        <Button Command="{Binding PrintCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Background="{StaticResource Primary}"
+                                Foreground="{StaticResource OnPrimary}"
+                                CornerRadius="12"
+                                Height="52"
+                                IsEnabled="{Binding !IsPrinting}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xe8ad;"
+                                           FontFamily="{StaticResource MaterialIcons}"
+                                           FontSize="22"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="Распечатать"
+                                           FontWeight="SemiBold"
+                                           FontSize="16"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+        </Grid>
+    </Grid>
+</UserControl>

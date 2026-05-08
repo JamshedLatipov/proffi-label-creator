@@ -121,6 +121,178 @@ public sealed class WarehouseService : IWarehouseService
         }
     }
 
+    public async Task<IReadOnlyList<ZoneDto>> GetZonesAsync(string warehouseId)
+    {
+        var baseUrl = _settingsService.BackendUrl.TrimEnd('/');
+        var token   = _settingsService.AuthToken;
+
+        if (string.IsNullOrWhiteSpace(baseUrl) || string.IsNullOrWhiteSpace(token))
+            return [];
+
+        try
+        {
+            var url = $"{baseUrl}/warehouses/zone/?warehouse_id={Uri.EscapeDataString(warehouseId)}&limit=200";
+            Debug.WriteLine($"[WarehouseService] GET {url}");
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.SendAsync(request);
+            Debug.WriteLine($"[WarehouseService] Zones response: {(int)response.StatusCode} {response.ReasonPhrase}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    SessionExpired?.Invoke(this, EventArgs.Empty);
+                return [];
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            List<ZoneDto>? list = null;
+
+            // paginated: { "body": [...] }  or { "response": { "list": [...] } }
+            if (root.ValueKind == JsonValueKind.Object)
+            {
+                if (root.TryGetProperty("body", out var body))
+                    list = JsonSerializer.Deserialize<List<ZoneDto>>(body.GetRawText(), _opts);
+                else if (root.TryGetProperty("results", out var results))
+                    list = JsonSerializer.Deserialize<List<ZoneDto>>(results.GetRawText(), _opts);
+                else if (root.TryGetProperty("data", out var data))
+                    list = JsonSerializer.Deserialize<List<ZoneDto>>(data.GetRawText(), _opts);
+            }
+            else if (root.ValueKind == JsonValueKind.Array)
+            {
+                list = JsonSerializer.Deserialize<List<ZoneDto>>(json, _opts);
+            }
+
+            Debug.WriteLine($"[WarehouseService] Zones parsed: {list?.Count ?? 0}");
+            return list ?? [];
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[WarehouseService] GetZonesAsync exception: {ex.GetType().Name}: {ex.Message}");
+            return [];
+        }
+    }
+
+    public async Task<IReadOnlyList<ShelfDto>> GetShelvesAsync(string zoneId)
+    {
+        var baseUrl = _settingsService.BackendUrl.TrimEnd('/');
+        var token   = _settingsService.AuthToken;
+
+        if (string.IsNullOrWhiteSpace(baseUrl) || string.IsNullOrWhiteSpace(token))
+            return [];
+
+        try
+        {
+            var url = $"{baseUrl}/warehouses/shelf/?warehouse_zone_id={Uri.EscapeDataString(zoneId)}&limit=200";
+            Debug.WriteLine($"[WarehouseService] GET {url}");
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.SendAsync(request);
+            Debug.WriteLine($"[WarehouseService] Shelves response: {(int)response.StatusCode} {response.ReasonPhrase}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    SessionExpired?.Invoke(this, EventArgs.Empty);
+                return [];
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            List<ShelfDto>? list = null;
+
+            if (root.ValueKind == JsonValueKind.Object)
+            {
+                if (root.TryGetProperty("body", out var body))
+                    list = JsonSerializer.Deserialize<List<ShelfDto>>(body.GetRawText(), _opts);
+                else if (root.TryGetProperty("results", out var results))
+                    list = JsonSerializer.Deserialize<List<ShelfDto>>(results.GetRawText(), _opts);
+                else if (root.TryGetProperty("data", out var data))
+                    list = JsonSerializer.Deserialize<List<ShelfDto>>(data.GetRawText(), _opts);
+            }
+            else if (root.ValueKind == JsonValueKind.Array)
+            {
+                list = JsonSerializer.Deserialize<List<ShelfDto>>(json, _opts);
+            }
+
+            Debug.WriteLine($"[WarehouseService] Shelves parsed: {list?.Count ?? 0}");
+            return list ?? [];
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[WarehouseService] GetShelvesAsync exception: {ex.GetType().Name}: {ex.Message}");
+            return [];
+        }
+    }
+
+    public async Task<IReadOnlyList<BoxDto>> GetBoxesAsync(string shelfId)
+    {
+        var baseUrl = _settingsService.BackendUrl.TrimEnd('/');
+        var token   = _settingsService.AuthToken;
+
+        if (string.IsNullOrWhiteSpace(baseUrl) || string.IsNullOrWhiteSpace(token))
+            return [];
+
+        try
+        {
+            var url = $"{baseUrl}/warehouses/box/?warehouse_shelf_id={Uri.EscapeDataString(shelfId)}&limit=200";
+            Debug.WriteLine($"[WarehouseService] GET {url}");
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.SendAsync(request);
+            Debug.WriteLine($"[WarehouseService] Boxes response: {(int)response.StatusCode} {response.ReasonPhrase}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    SessionExpired?.Invoke(this, EventArgs.Empty);
+                return [];
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            List<BoxDto>? list = null;
+
+            if (root.ValueKind == JsonValueKind.Object)
+            {
+                if (root.TryGetProperty("body", out var body))
+                    list = JsonSerializer.Deserialize<List<BoxDto>>(body.GetRawText(), _opts);
+                else if (root.TryGetProperty("results", out var results))
+                    list = JsonSerializer.Deserialize<List<BoxDto>>(results.GetRawText(), _opts);
+                else if (root.TryGetProperty("data", out var data))
+                    list = JsonSerializer.Deserialize<List<BoxDto>>(data.GetRawText(), _opts);
+            }
+            else if (root.ValueKind == JsonValueKind.Array)
+            {
+                list = JsonSerializer.Deserialize<List<BoxDto>>(json, _opts);
+            }
+
+            Debug.WriteLine($"[WarehouseService] Boxes parsed: {list?.Count ?? 0}");
+            return list ?? [];
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[WarehouseService] GetBoxesAsync exception: {ex.GetType().Name}: {ex.Message}");
+            return [];
+        }
+    }
+
     private static IEnumerable<string> EnumerateKeys(JsonElement element)
     {
         if (element.ValueKind != JsonValueKind.Object) yield break;

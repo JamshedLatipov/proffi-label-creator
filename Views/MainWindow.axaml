@@ -76,6 +76,12 @@
                                 <TextBlock Text="Settings" Foreground="{StaticResource OnSurfaceVariant}"/>
                             </StackPanel>
                         </Button>
+                        <Button Command="{Binding NavigateToZoneLabelCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="&#xe044;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="QR Зоны" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </StackPanel>
 

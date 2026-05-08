@@ -117,6 +117,10 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void NavigateToZoneLabel()
+        => CurrentContent = new ZoneLabelViewModel(_warehouseService);
+
+    [RelayCommand]
     private void Logout()
         => LogoutRequested?.Invoke(this, EventArgs.Empty);
 }
