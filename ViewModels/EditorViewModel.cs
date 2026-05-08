@@ -14,6 +14,7 @@ namespace LabelStudio.ViewModels;
 public partial class EditorViewModel : ViewModelBase
 {
     private readonly LabelProject _project;
+    private readonly ISettingsService _settingsService;
 
     // Navigation callback (set by MainWindowViewModel when not navigating standalone)
     public Action<ViewModelBase>? Navigate { get; set; }
@@ -72,16 +73,20 @@ public partial class EditorViewModel : ViewModelBase
     private ElementViewModel? _selectedElement;
 
     public bool HasSelection => SelectedElement is not null;
+    public bool HasElements  => Elements.Count > 0;
 
     // ── Constructors ────────────────────────────────────────────────────
 
-    public EditorViewModel()
+    public EditorViewModel(ISettingsService settingsService)
     {
+        _settingsService = settingsService;
         _project = new LabelProject { Name = "Untitled" };
+        Elements.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasElements));
     }
 
-    public EditorViewModel(ProjectSettings settings)
+    public EditorViewModel(ISettingsService settingsService, ProjectSettings settings)
     {
+        _settingsService    = settingsService;
         _project            = LabelProject.FromSettings(settings);
         _projectName        = _project.Name;
         _labelWidth         = _project.LabelWidth;
@@ -89,17 +94,20 @@ public partial class EditorViewModel : ViewModelBase
         _isPortrait         = _project.IsPortrait;
         _printerProfileName = _project.PrinterProfileName;
         _isDirty            = true;
+        Elements.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasElements));
         LoadElements();
     }
 
-    public EditorViewModel(LabelProject project)
+    public EditorViewModel(ISettingsService settingsService, LabelProject project)
     {
+        _settingsService    = settingsService;
         _project            = project;
         _projectName        = project.Name;
         _labelWidth         = project.LabelWidth;
         _labelHeight        = project.LabelHeight;
         _isPortrait         = project.IsPortrait;
         _printerProfileName = project.PrinterProfileName;
+        Elements.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasElements));
         LoadElements();
     }
 
@@ -264,6 +272,6 @@ public partial class EditorViewModel : ViewModelBase
     private void NavigateToPrintPreview()
     {
         Save();
-        Navigate?.Invoke(new PrintPreviewViewModel(this, new SettingsService()));
+        Navigate?.Invoke(new PrintPreviewViewModel(this, _settingsService));
     }
 }

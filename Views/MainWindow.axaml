@@ -64,12 +64,6 @@
                                 <TextBlock Text="Printer Profiles" Foreground="{StaticResource OnSurfaceVariant}"/>
                             </StackPanel>
                         </Button>
-                        <Button Command="{Binding NavigateToPrinterProfilesCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <TextBlock Text="&#xe8ad;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
-                                <TextBlock Text="Print Settings" Foreground="{StaticResource OnSurfaceVariant}"/>
-                            </StackPanel>
-                        </Button>
                         <Button Command="{Binding NavigateToAppSettingsCommand}" Background="Transparent" HorizontalAlignment="Stretch" Padding="16,10" CornerRadius="8">
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <TextBlock Text="&#xe4e9;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}"/>
@@ -92,8 +86,7 @@
                                 <TextBlock Text="&#xe7fd;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#475569" FontSize="24"/>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Alex Rivera" FontWeight="Bold" Foreground="{StaticResource OnSurface}"/>
-                                <TextBlock Text="Pro License" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                                <TextBlock Text="{Binding LoggedInUser, FallbackValue='Connected'}" FontWeight="Bold" Foreground="{StaticResource OnSurface}"/>
                             </StackPanel>
                         </StackPanel>
                         <Button Command="{Binding LogoutCommand}"
@@ -120,12 +113,7 @@
                         <TextBlock FontFamily="{StaticResource ManropeFont}" FontWeight="ExtraBold" FontSize="16" VerticalAlignment="Center">
                             <Run Text="{Binding CurrentProjectTitle}"/><Run Text="{Binding IsDirtyIndicator}" Foreground="{StaticResource Primary}"/>
                         </TextBlock>
-                        <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
-                            <TextBlock Text="FILE" FontSize="12" FontWeight="SemiBold" Foreground="#2563eb" Padding="0,0,0,4"/>
-                            <TextBlock Text="EDIT" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
-                            <TextBlock Text="VIEW" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
-                            <TextBlock Text="ARRANGE" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
-                        </StackPanel>
+    
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
@@ -147,11 +135,7 @@
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
-                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,16,0">
-                            <TextBlock Text="&#xe8f4;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
-                            <TextBlock Text="&#xe889;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
-                            <TextBlock Text="&#xe8fd;" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource OnSurfaceVariant}" FontSize="20"/>
-                        </StackPanel>
+
                         <Button Command="{Binding SaveCurrentCommand}" Content="SAVE" Background="Transparent" Foreground="#475569" FontWeight="Bold" FontSize="10" Padding="16,6"/>
                         <Button Command="{Binding NavigateToPrintPreviewCommand}" Content="PRINT" Background="{StaticResource Primary}" Foreground="{StaticResource OnPrimary}" FontWeight="Bold" FontSize="10" Padding="20,6" CornerRadius="4"/>
                     </StackPanel>

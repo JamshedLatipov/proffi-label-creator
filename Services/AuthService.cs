@@ -43,6 +43,7 @@ public class AuthService : IAuthService
                     if (root.TryGetProperty("access_token", out var tokenEl))
                     {
                         _settingsService.AuthToken = tokenEl.GetString() ?? string.Empty;
+                        _settingsService.UserEmail = email;
                         _settingsService.Save();
                     }
                     return true;

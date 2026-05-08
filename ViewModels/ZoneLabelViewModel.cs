@@ -11,7 +11,6 @@ using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Services;
-using Microsoft.Win32;
 using ZXing;
 using ZXing.Common;
 using ZXing.Rendering;
@@ -100,12 +99,7 @@ public partial class ZoneLabelViewModel : ViewModelBase
 
     private void LoadSystemPrinters()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return;
-
-        using var key = Registry.LocalMachine?.OpenSubKey(
-            @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers");
-        foreach (var name in key?.GetSubKeyNames() ?? [])
+        foreach (var name in PrinterService.GetSystemPrinters())
             SystemPrinters.Add(name);
 
         SelectedPrinter = SystemPrinters.Count > 0 ? SystemPrinters[0] : null;

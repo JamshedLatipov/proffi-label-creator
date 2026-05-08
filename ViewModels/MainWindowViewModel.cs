@@ -16,6 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         _settingsService  = settingsService;
         _warehouseService = warehouseService;
+        _currentContent   = new TemplatesViewModel(vm => CurrentContent = vm, settingsService);
     }
 
     // ── Auth state ──────────────────────────────────────────────────────────
@@ -33,7 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     // ── Main app state ──────────────────────────────────────────────────────
     [ObservableProperty]
-    private ViewModelBase _currentContent = new TemplatesViewModel();
+    private ViewModelBase _currentContent = null!; // set in constructor
 
     partial void OnCurrentContentChanged(ViewModelBase value)
     {
@@ -57,13 +58,16 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>True when a default warehouse has been selected.</summary>
     public bool HasDefaultWarehouse => !string.IsNullOrWhiteSpace(_settingsService.DefaultWarehouseName);
 
+    /// <summary>Logged-in user email shown in sidebar footer.</summary>
+    public string LoggedInUser => _settingsService.UserEmail is { Length: > 0 } email ? email : "Connected";
+
     [RelayCommand]
     private void NavigateToTemplates()
-        => CurrentContent = new TemplatesViewModel();
+        => CurrentContent = new TemplatesViewModel(vm => CurrentContent = vm, _settingsService);
 
     [RelayCommand]
     private void NavigateToProjects()
-        => CurrentContent = new ProjectsViewModel(vm => CurrentContent = vm);
+        => CurrentContent = new ProjectsViewModel(vm => CurrentContent = vm, _settingsService);
 
     [RelayCommand(CanExecute = nameof(IsEditorActive))]
     private void NavigateToPrintPreview()
@@ -77,7 +81,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void NavigateToEditor()
     {
-        var vm = new EditorViewModel();
+        var vm = new EditorViewModel(_settingsService);
         vm.Navigate = nav => CurrentContent = nav;
         CurrentContent = vm;
     }
@@ -89,7 +93,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (vm is EditorViewModel editor)
                 editor.Navigate = nav => CurrentContent = nav;
             CurrentContent = vm;
-        });
+        }, _settingsService);
 
     [RelayCommand]
     private void NavigateToPrinterProfiles()

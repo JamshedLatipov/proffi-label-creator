@@ -287,7 +287,8 @@ public partial class ElementViewModel : ViewModelBase
         _imagePath           = model.ImagePath;
         _cachedImageSource   = LoadBitmap(model.ImagePath);
         _cachedBarcodeSource = RenderBarcode(model.BarcodeValue, BarcodeFormat.CODE_128, (int)_width, (int)_height);
-        _cachedQrSource      = RenderBarcode(model.Content, BarcodeFormat.QR_CODE, (int)_width, (int)_height);    }
+        _cachedQrSource      = RenderBarcode(model.Content, BarcodeFormat.QR_CODE, (int)_width, (int)_height);
+    }
 
     // ── Sync px → mm back to model (called after drag) ─────────────────
     public void SyncPosition()

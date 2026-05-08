@@ -36,6 +36,12 @@ public class SettingsService : ISettingsService
         set => _data.DefaultWarehouseId = value;
     }
 
+    public string UserEmail
+    {
+        get => _data.UserEmail;
+        set => _data.UserEmail = value;
+    }
+
     public string DefaultWarehouseName
     {
         get => _data.DefaultWarehouseName;
@@ -64,6 +70,7 @@ public class SettingsService : ISettingsService
     {
         public string BackendUrl            { get; set; } = string.Empty;
         public string AuthToken             { get; set; } = string.Empty;
+        public string UserEmail             { get; set; } = string.Empty;
         public string DefaultWarehouseId    { get; set; } = string.Empty;
         public string DefaultWarehouseName  { get; set; } = string.Empty;
     }

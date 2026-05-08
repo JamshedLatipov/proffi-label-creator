@@ -5,11 +5,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Printing;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using ZXing;
 using ZXing.Common;
 using ZXing.Rendering;
@@ -17,15 +14,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
 using LabelStudio.Services;
-using Microsoft.Win32;
 
 namespace LabelStudio.ViewModels;
 
 public partial class PrintPreviewViewModel : ViewModelBase
 {
-    private readonly EditorViewModel _editor;
+    private readonly EditorViewModel  _editor;
     private readonly ISettingsService _settings;
-    private readonly HttpClient _http = new();
+    private readonly IProductService  _productService;
 
     // ── Product lookup state ───────────────────────────────────────────
     /// <summary>Resolved dynamic-field values: key → value, e.g. "name" → "Widget Pro"</summary>
@@ -90,8 +86,9 @@ public partial class PrintPreviewViewModel : ViewModelBase
 
     public PrintPreviewViewModel(EditorViewModel editor, ISettingsService settings)
     {
-        _editor   = editor;
-        _settings = settings;
+        _editor         = editor;
+        _settings       = settings;
+        _productService = new ProductService(settings);
         LoadPrinters();
     }
 
@@ -111,73 +108,29 @@ public partial class PrintPreviewViewModel : ViewModelBase
 
         try
         {
-            var baseUrl = _settings.BackendUrl.TrimEnd('/');
-            if (string.IsNullOrWhiteSpace(baseUrl))
+            var (results, error) = await _productService.SearchByBarcodeAsync(ArticleInput.Trim());
+
+            if (error is not null)
             {
-                LookupError = "Backend URL not configured. Open Connection Settings.";
+                LookupError = error;
                 return;
             }
 
-            var url = $"{baseUrl}/products/product/?barcode={Uri.EscapeDataString(ArticleInput.Trim())}";
-
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
-            if (!string.IsNullOrWhiteSpace(_settings.AuthToken))
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.AuthToken);
-
-            var response = await _http.SendAsync(request);
-            var rawBody  = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                LookupError = $"Server returned {(int)response.StatusCode}";
-                return;
-            }
-
-            using var doc = JsonDocument.Parse(rawBody);
-            var root = doc.RootElement;
-
-            // Response: {"body": [ {product}, ... ]}
-            if (!root.TryGetProperty("body", out var bodyEl) ||
-                bodyEl.ValueKind != JsonValueKind.Array)
-            {
-                LookupError = "Product not found";
-                return;
-            }
-
-            var products = bodyEl.EnumerateArray()
-                .Select(ParseProductSuggestion)
-                .Where(p => !string.IsNullOrEmpty(p.Id))
-                .ToList();
-
-            if (products.Count == 0)
+            if (results.Count == 0)
             {
                 LookupError = "No products found";
             }
-            else if (products.Count == 1)
+            else if (results.Count == 1)
             {
-                // Single result → apply immediately and start printing
-                ApplyProduct(products[0]);
+                ApplyProduct(results[0]);
                 if (CanPrint()) Print();
             }
             else
             {
-                // Multiple results → let user pick
-                foreach (var p in products)
+                foreach (var p in results)
                     Suggestions.Add(p);
                 HasSuggestions = true;
             }
-        }
-        catch (HttpRequestException ex)
-        {
-            LookupError = $"Network error: {ex.Message}";
-        }
-        catch (JsonException)
-        {
-            LookupError = "Failed to parse server response";
-        }
-        catch (Exception ex)
-        {
-            LookupError = $"Error: {ex.Message}";
         }
         finally
         {
@@ -228,41 +181,6 @@ public partial class PrintPreviewViewModel : ViewModelBase
         PushPreviewValues();
     }
 
-    private static ProductSuggestion ParseProductSuggestion(JsonElement el)
-    {
-        static string S(JsonElement e, string key) =>
-            e.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String
-                ? v.GetString() ?? string.Empty : string.Empty;
-
-        var id          = S(el, "id");
-        var name        = S(el, "name");
-        var barcode     = S(el, "barcode");
-        var article     = S(el, "article");
-        var description = S(el, "description");
-        var origin      = S(el, "origin");
-
-        string categoryName = string.Empty, categoryCode = string.Empty;
-        if (el.TryGetProperty("category", out var cat) && cat.ValueKind == JsonValueKind.Object)
-        {
-            categoryName = S(cat, "name");
-            categoryCode = S(cat, "code");
-        }
-
-        string sizeDisplay = string.Empty, sizeCode = string.Empty;
-        if (el.TryGetProperty("size", out var sz) && sz.ValueKind == JsonValueKind.Object)
-        {
-            sizeDisplay = S(sz, "size_display");
-            sizeCode    = S(sz, "code");
-        }
-
-        string stateName = string.Empty;
-        if (el.TryGetProperty("state", out var st) && st.ValueKind == JsonValueKind.Object)
-            stateName = S(st, "name");
-
-        return new ProductSuggestion(id, name, barcode, article,
-            categoryName, categoryCode, description, sizeDisplay, sizeCode, stateName, origin);
-    }
-
     /// <summary>Strips optional surrounding braces: "{name}" → "name", "name" → "name".</summary>
     private static string NormalizeKey(string key) =>
         key.Length > 2 && key[0] == '{' && key[^1] == '}' ? key[1..^1] : key;
@@ -300,9 +218,7 @@ public partial class PrintPreviewViewModel : ViewModelBase
 
     private void LoadPrinters()
     {
-        using var key = Registry.LocalMachine.OpenSubKey(
-            @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers");
-        var names = key?.GetSubKeyNames() ?? [];
+        var names = PrinterService.GetSystemPrinters();
         Printers = new ObservableCollection<string>(names);
         SelectedPrinter = Printers.Count > 0 ? Printers[0] : null;
     }
@@ -316,6 +232,11 @@ public partial class PrintPreviewViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanPrint))]
     private void Print()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            StatusMessage = "Печать поддерживается только на Windows.";
+            return;
+        }
         if (SelectedPrinter is null) return;
         IsPrinting = true;
         try
@@ -557,33 +478,4 @@ public partial class PrintPreviewViewModel : ViewModelBase
         finally { bmp.UnlockBits(bdata); }
         return bmp;
     }
-}
-
-/// <summary>One item in the autocomplete "like" list.</summary>
-public sealed class ProductSuggestion
-{
-    public string Id           { get; }
-    public string Name         { get; }
-    public string Barcode      { get; }
-    public string Article      { get; }
-    public string CategoryName { get; }
-    public string CategoryCode { get; }
-    public string Description  { get; }
-    public string SizeDisplay  { get; }
-    public string SizeCode     { get; }
-    public string StateName    { get; }
-    public string Origin       { get; }
-
-    public ProductSuggestion(string id, string name, string barcode = "", string article = "",
-        string categoryName = "", string categoryCode = "", string description = "",
-        string sizeDisplay = "", string sizeCode = "", string stateName = "", string origin = "")
-    {
-        Id = id; Name = name; Barcode = barcode; Article = article;
-        CategoryName = categoryName; CategoryCode = categoryCode;
-        Description = description;
-        SizeDisplay = sizeDisplay; SizeCode = sizeCode;
-        StateName = stateName; Origin = origin;
-    }
-
-    public override string ToString() => Name;
 }

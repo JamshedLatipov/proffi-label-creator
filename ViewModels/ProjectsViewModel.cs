@@ -10,14 +10,16 @@ namespace LabelStudio.ViewModels;
 public partial class ProjectsViewModel : ViewModelBase
 {
     private readonly Action<ViewModelBase> _navigate;
+    private readonly ISettingsService _settingsService;
 
     public ObservableCollection<LabelProjectViewModel> Projects { get; } = [];
 
     public bool HasNoProjects => Projects.Count == 0;
 
-    public ProjectsViewModel(Action<ViewModelBase> navigate)
+    public ProjectsViewModel(Action<ViewModelBase> navigate, ISettingsService settingsService)
     {
-        _navigate = navigate;
+        _navigate        = navigate;
+        _settingsService = settingsService;
         Projects.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasNoProjects));
         Reload();
     }
@@ -32,7 +34,7 @@ public partial class ProjectsViewModel : ViewModelBase
 
     private void OpenProject(LabelProjectViewModel item)
     {
-        var editor = new EditorViewModel(item.Project);
+        var editor = new EditorViewModel(_settingsService, item.Project);
         editor.Navigate = _navigate;
         _navigate(editor);
     }
@@ -45,7 +47,7 @@ public partial class ProjectsViewModel : ViewModelBase
 
     [RelayCommand]
     private void NewProject()
-        => _navigate(new NewProjectViewModel(_navigate));
+        => _navigate(new NewProjectViewModel(_navigate, _settingsService));
 }
 
 public class LabelProjectViewModel

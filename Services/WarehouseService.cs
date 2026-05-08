@@ -27,6 +27,23 @@ public sealed class WarehouseService : IWarehouseService
         _settingsService = settingsService;
     }
 
+    /// <summary>
+    /// Unwraps the common proffi/DRF JSON envelope formats and deserializes into List&lt;T&gt;.
+    /// Supports: { "body": [...] }, { "results": [...] }, { "data": [...] }, and bare arrays.
+    /// </summary>
+    private List<T> UnwrapList<T>(JsonElement root, string raw)
+    {
+        if (root.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var wrapper in new[] { "body", "results", "data" })
+                if (root.TryGetProperty(wrapper, out var arr))
+                    return JsonSerializer.Deserialize<List<T>>(arr.GetRawText(), _opts) ?? [];
+        }
+        else if (root.ValueKind == JsonValueKind.Array)
+            return JsonSerializer.Deserialize<List<T>>(raw, _opts) ?? [];
+        return [];
+    }
+
     public async Task<IReadOnlyList<WarehouseDto>> GetWarehousesAsync()
     {
         var baseUrl = _settingsService.BackendUrl.TrimEnd('/');
@@ -76,43 +93,12 @@ public sealed class WarehouseService : IWarehouseService
             var root = doc.RootElement;
             Debug.WriteLine($"[WarehouseService] Root kind: {root.ValueKind}");
 
-            // proffi: {"page_count":..., "body": [...]}
-            if (root.ValueKind == JsonValueKind.Object &&
-                root.TryGetProperty("body", out var body))
-            {
-                var list = JsonSerializer.Deserialize<List<WarehouseDto>>(body.GetRawText(), _opts) ?? [];
-                Debug.WriteLine($"[WarehouseService] Parsed via 'body': {list.Count} items");
-                return list;
-            }
-
-            // DRF paginated: {"count": N, "results": [...]}
-            if (root.ValueKind == JsonValueKind.Object &&
-                root.TryGetProperty("results", out var results))
-            {
-                var list = JsonSerializer.Deserialize<List<WarehouseDto>>(results.GetRawText(), _opts) ?? [];
-                Debug.WriteLine($"[WarehouseService] Parsed via 'results': {list.Count} items");
-                return list;
-            }
-
-            // proffi wrapper: {"status": 0, "data": [...]}
-            if (root.ValueKind == JsonValueKind.Object &&
-                root.TryGetProperty("data", out var data))
-            {
-                var list = JsonSerializer.Deserialize<List<WarehouseDto>>(data.GetRawText(), _opts) ?? [];
-                Debug.WriteLine($"[WarehouseService] Parsed via 'data': {list.Count} items");
-                return list;
-            }
-
-            // Direct array
-            if (root.ValueKind == JsonValueKind.Array)
-            {
-                var list = JsonSerializer.Deserialize<List<WarehouseDto>>(json, _opts) ?? [];
-                Debug.WriteLine($"[WarehouseService] Parsed as direct array: {list.Count} items");
-                return list;
-            }
-
-            Debug.WriteLine($"[WarehouseService] Unrecognized JSON structure. Full root keys: {string.Join(", ", EnumerateKeys(root))}");
-            return [];
+            var list = UnwrapList<WarehouseDto>(root, json);
+            if (list.Count == 0)
+                Debug.WriteLine($"[WarehouseService] Unrecognized or empty JSON. Root keys: {string.Join(", ", EnumerateKeys(root))}");
+            else
+                Debug.WriteLine($"[WarehouseService] Parsed {list.Count} items");
+            return list;
         }
         catch (Exception ex)
         {
@@ -152,25 +138,9 @@ public sealed class WarehouseService : IWarehouseService
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            List<ZoneDto>? list = null;
-
-            // paginated: { "body": [...] }  or { "response": { "list": [...] } }
-            if (root.ValueKind == JsonValueKind.Object)
-            {
-                if (root.TryGetProperty("body", out var body))
-                    list = JsonSerializer.Deserialize<List<ZoneDto>>(body.GetRawText(), _opts);
-                else if (root.TryGetProperty("results", out var results))
-                    list = JsonSerializer.Deserialize<List<ZoneDto>>(results.GetRawText(), _opts);
-                else if (root.TryGetProperty("data", out var data))
-                    list = JsonSerializer.Deserialize<List<ZoneDto>>(data.GetRawText(), _opts);
-            }
-            else if (root.ValueKind == JsonValueKind.Array)
-            {
-                list = JsonSerializer.Deserialize<List<ZoneDto>>(json, _opts);
-            }
-
-            Debug.WriteLine($"[WarehouseService] Zones parsed: {list?.Count ?? 0}");
-            return list ?? [];
+            var list = UnwrapList<ZoneDto>(root, json);
+            Debug.WriteLine($"[WarehouseService] Zones parsed: {list.Count}");
+            return list;
         }
         catch (Exception ex)
         {
@@ -210,24 +180,9 @@ public sealed class WarehouseService : IWarehouseService
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            List<ShelfDto>? list = null;
-
-            if (root.ValueKind == JsonValueKind.Object)
-            {
-                if (root.TryGetProperty("body", out var body))
-                    list = JsonSerializer.Deserialize<List<ShelfDto>>(body.GetRawText(), _opts);
-                else if (root.TryGetProperty("results", out var results))
-                    list = JsonSerializer.Deserialize<List<ShelfDto>>(results.GetRawText(), _opts);
-                else if (root.TryGetProperty("data", out var data))
-                    list = JsonSerializer.Deserialize<List<ShelfDto>>(data.GetRawText(), _opts);
-            }
-            else if (root.ValueKind == JsonValueKind.Array)
-            {
-                list = JsonSerializer.Deserialize<List<ShelfDto>>(json, _opts);
-            }
-
-            Debug.WriteLine($"[WarehouseService] Shelves parsed: {list?.Count ?? 0}");
-            return list ?? [];
+            var list = UnwrapList<ShelfDto>(root, json);
+            Debug.WriteLine($"[WarehouseService] Shelves parsed: {list.Count}");
+            return list;
         }
         catch (Exception ex)
         {
@@ -267,24 +222,9 @@ public sealed class WarehouseService : IWarehouseService
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            List<BoxDto>? list = null;
-
-            if (root.ValueKind == JsonValueKind.Object)
-            {
-                if (root.TryGetProperty("body", out var body))
-                    list = JsonSerializer.Deserialize<List<BoxDto>>(body.GetRawText(), _opts);
-                else if (root.TryGetProperty("results", out var results))
-                    list = JsonSerializer.Deserialize<List<BoxDto>>(results.GetRawText(), _opts);
-                else if (root.TryGetProperty("data", out var data))
-                    list = JsonSerializer.Deserialize<List<BoxDto>>(data.GetRawText(), _opts);
-            }
-            else if (root.ValueKind == JsonValueKind.Array)
-            {
-                list = JsonSerializer.Deserialize<List<BoxDto>>(json, _opts);
-            }
-
-            Debug.WriteLine($"[WarehouseService] Boxes parsed: {list?.Count ?? 0}");
-            return list ?? [];
+            var list = UnwrapList<BoxDto>(root, json);
+            Debug.WriteLine($"[WarehouseService] Boxes parsed: {list.Count}");
+            return list;
         }
         catch (Exception ex)
         {

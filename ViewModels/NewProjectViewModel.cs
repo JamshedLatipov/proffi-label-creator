@@ -3,12 +3,14 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
+using LabelStudio.Services;
 
 namespace LabelStudio.ViewModels;
 
 public partial class NewProjectViewModel : ViewModelBase
 {
     private readonly Action<ViewModelBase> _navigate;
+    private readonly ISettingsService _settingsService;
 
     // ── 1. Project Details ──────────────────────────────────────────────
     [ObservableProperty]
@@ -71,10 +73,11 @@ public partial class NewProjectViewModel : ViewModelBase
     private PrinterProfile? _selectedPrinterProfile;
 
     // ─────────────────────────────────────────────────────────────────────
-    public NewProjectViewModel(Action<ViewModelBase> navigate)
+    public NewProjectViewModel(Action<ViewModelBase> navigate, ISettingsService settingsService)
     {
-        _navigate = navigate;
-        LabelWidth = 58;
+        _navigate         = navigate;
+        _settingsService  = settingsService;
+        LabelWidth  = 58;
         LabelHeight = 40;
         SelectedPrinterProfile = PrinterProfiles.Count > 0 ? PrinterProfiles[0] : null;
     }
@@ -106,7 +109,7 @@ public partial class NewProjectViewModel : ViewModelBase
             IsMonochrome:        p.IsMonochrome
         );
 
-        _navigate(new EditorViewModel(settings));
+        _navigate(new EditorViewModel(_settingsService, settings));
     }
 
     private bool CanCreateProject() =>

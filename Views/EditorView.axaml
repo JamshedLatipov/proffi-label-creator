@@ -130,7 +130,7 @@
                         </StackPanel>
 
                         <!-- Layer list -->
-                        <StackPanel Spacing="6" IsVisible="{Binding HasSelection}">
+                        <StackPanel Spacing="6" IsVisible="{Binding HasElements}">
                             <TextBlock Text="LAYERS" FontSize="9" FontWeight="Bold"
                                        Foreground="{StaticResource OnSurfaceVariant}"
                                        LetterSpacing="1" Margin="4,0,0,4"/>

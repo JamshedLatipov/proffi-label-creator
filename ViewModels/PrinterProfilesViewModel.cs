@@ -1,9 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
-using Microsoft.Win32;
+using LabelStudio.Services;
 
 namespace LabelStudio.ViewModels;
 
@@ -12,13 +16,46 @@ namespace LabelStudio.ViewModels;
 /// </summary>
 public static class PrinterProfileStore
 {
+    private static readonly string ProfilesPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "LabelStudio", "printer-profiles.json");
+
+    private static readonly JsonSerializerOptions _opts = new() { WriteIndented = true };
+
     public static ObservableCollection<PrinterProfile> Profiles { get; } = [];
 
     static PrinterProfileStore()
     {
-        // Default sample profiles — replaced by real data once user saves
-        Profiles.Add(new PrinterProfile("Zebra 300 dpi Thermal", "Zebra ZT230", "300 dpi", "Thermal Transfer", true));
-        Profiles.Add(new PrinterProfile("Office Color Inkjet", "HP OfficeJet Pro", "600 dpi", "Paper", false));
+        var loaded = Load();
+        if (loaded.Count > 0)
+        {
+            foreach (var p in loaded)
+                Profiles.Add(p);
+        }
+        else
+        {
+            // Built-in defaults shown until user creates real profiles
+            Profiles.Add(new PrinterProfile("Zebra 300 dpi Thermal", "Zebra ZT230", "300 dpi", "Thermal Transfer", true));
+            Profiles.Add(new PrinterProfile("Office Color Inkjet", "HP OfficeJet Pro", "600 dpi", "Paper", false));
+        }
+    }
+
+    public static void Save()
+    {
+        var dir = Path.GetDirectoryName(ProfilesPath)!;
+        Directory.CreateDirectory(dir);
+        File.WriteAllText(ProfilesPath, JsonSerializer.Serialize(Profiles.ToList(), _opts));
+    }
+
+    private static List<PrinterProfile> Load()
+    {
+        if (!File.Exists(ProfilesPath)) return [];
+        try
+        {
+            var text = File.ReadAllText(ProfilesPath);
+            return JsonSerializer.Deserialize<List<PrinterProfile>>(text, _opts) ?? [];
+        }
+        catch { return []; }
     }
 }
 
@@ -74,14 +111,8 @@ public partial class PrinterProfilesViewModel : ViewModelBase
 
     private void LoadSystemPrinters()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            using var key = Registry.LocalMachine?.OpenSubKey(
-                @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers");
-
-            foreach (var name in key?.GetSubKeyNames() ?? [])
-                SystemPrinters.Add(name);
-        }
+        foreach (var name in PrinterService.GetSystemPrinters())
+            SystemPrinters.Add(name);
 
         FormPrinterName = SystemPrinters.Count > 0 ? SystemPrinters[0] : null;
     }
@@ -120,6 +151,7 @@ public partial class PrinterProfilesViewModel : ViewModelBase
         if (SelectedProfile is null) return;
         Profiles.Remove(SelectedProfile);
         SelectedProfile = null;
+        PrinterProfileStore.Save();
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
@@ -143,6 +175,7 @@ public partial class PrinterProfilesViewModel : ViewModelBase
             Profiles.Add(profile);
         }
 
+        PrinterProfileStore.Save();
         CancelForm();
     }
 
