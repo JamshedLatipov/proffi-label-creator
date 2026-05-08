@@ -31,9 +31,71 @@
                     <DataTemplate x:DataType="vm:TemplateItemViewModel">
                         <Border Background="{StaticResource SurfaceContainerLowest}" BorderBrush="Transparent" BorderThickness="1" CornerRadius="12" Width="280" Margin="0,0,24,24">
                             <Grid RowDefinitions="Auto,*">
-                                <!-- Mockup area -->
-                                <Border Grid.Row="0" Height="210" Background="{StaticResource SurfaceContainerLow}" CornerRadius="12,12,0,0" Margin="4">
-                                    <Border Background="White" Width="140" Height="100" CornerRadius="4" BoxShadow="0 1 2 0 #1A000000"/>
+                                <!-- Label preview -->
+                                <Border Grid.Row="0" Height="210" Background="{StaticResource SurfaceContainerLow}"
+                                        CornerRadius="12,12,0,0" Margin="4" ClipToBounds="True">
+                                    <Viewbox Stretch="Uniform" Margin="16"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center">
+                                        <Border BoxShadow="0 2 8 0 #22000000" x:CompileBindings="False">
+                                            <Canvas x:CompileBindings="False"
+                                                    Width="{Binding Preview.CanvasWidth}"
+                                                    Height="{Binding Preview.CanvasHeight}"
+                                                    Background="White"
+                                                    ClipToBounds="True">
+                                                <ItemsControl Canvas.Left="0" Canvas.Top="0"
+                                                              Width="{Binding Preview.CanvasWidth}"
+                                                              Height="{Binding Preview.CanvasHeight}"
+                                                              Padding="0"
+                                                              ItemsSource="{Binding Preview.Elements}"
+                                                              x:CompileBindings="False">
+                                                    <ItemsControl.ItemContainerTheme>
+                                                        <ControlTheme TargetType="ContentPresenter">
+                                                            <Setter Property="Margin"      Value="0"/>
+                                                            <Setter Property="Padding"     Value="0"/>
+                                                            <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                                            <Setter Property="Canvas.Top"  Value="{Binding Top}"/>
+                                                        </ControlTheme>
+                                                    </ItemsControl.ItemContainerTheme>
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate><Canvas/></ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:CompileBindings="False">
+                                                            <Border Width="{Binding Width}" Height="{Binding Height}"
+                                                                    BorderThickness="0" CornerRadius="0">
+                                                                <Grid>
+                                                                    <TextBlock IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsText}}"
+                                                                               Text="{Binding Content}"
+                                                                               FontFamily="{Binding FontFamily}"
+                                                                               FontSize="{Binding FontSize}"
+                                                                               FontWeight="{Binding Bold, Converter={x:Static vm:BoolToFontWeightConverter.Instance}}"
+                                                                               Background="{Binding TextBackgroundBrush}"
+                                                                               TextWrapping="Wrap" Margin="3,2"/>
+                                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsDynamic}}"
+                                                                            Background="#e6f0fa" CornerRadius="2" Margin="2">
+                                                                        <TextBlock Text="{Binding DisplayContent}"
+                                                                                   FontFamily="Consolas,Monospace"
+                                                                                   FontSize="{Binding FontSize}"
+                                                                                   Foreground="{StaticResource Primary}"
+                                                                                   Margin="3,1" TextWrapping="Wrap"/>
+                                                                    </Border>
+                                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsBarcode}}"
+                                                                           Source="{Binding BarcodeSource}" Stretch="Fill"/>
+                                                                    <Image IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsQr}}"
+                                                                           Source="{Binding QrSource}" Stretch="Uniform"
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    <Border IsVisible="{Binding Kind, Converter={x:Static vm:ElementKindConverter.IsRect}}"
+                                                                            BorderBrush="{StaticResource OnSurface}"
+                                                                            BorderThickness="2" Margin="2"/>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </Canvas>
+                                        </Border>
+                                    </Viewbox>
                                 </Border>
 
                                 <StackPanel Grid.Row="1" Margin="20">
