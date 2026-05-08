@@ -56,4 +56,10 @@ public class AuthService : IAuthService
             return false;
         }
     }
+
+    public void Logout()
+    {
+        _settingsService.AuthToken = string.Empty;
+        _settingsService.Save();
+    }
 }

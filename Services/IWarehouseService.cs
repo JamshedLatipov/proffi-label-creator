@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,5 +14,6 @@ public sealed class WarehouseDto
 
 public interface IWarehouseService
 {
+    event EventHandler? SessionExpired;
     Task<IReadOnlyList<WarehouseDto>> GetWarehousesAsync();
 }

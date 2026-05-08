@@ -80,14 +80,26 @@
                 </StackPanel>
 
                 <Border Grid.Row="2" BorderBrush="#e2e8f0" BorderThickness="0,1,0,0" Padding="24">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <Border Width="40" Height="40" CornerRadius="20" Background="#cbd5e1" ClipToBounds="True">
-                            <TextBlock Text="&#xe7fd;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#475569" FontSize="24"/>
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Alex Rivera" FontWeight="Bold" Foreground="{StaticResource OnSurface}"/>
-                            <TextBlock Text="Pro License" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" CornerRadius="20" Background="#cbd5e1" ClipToBounds="True">
+                                <TextBlock Text="&#xe7fd;" FontFamily="{StaticResource MaterialIcons}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#475569" FontSize="24"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Alex Rivera" FontWeight="Bold" Foreground="{StaticResource OnSurface}"/>
+                                <TextBlock Text="Pro License" FontSize="12" Foreground="{StaticResource OnSurfaceVariant}"/>
+                            </StackPanel>
                         </StackPanel>
+                        <Button Command="{Binding LogoutCommand}"
+                                Background="Transparent"
+                                HorizontalAlignment="Stretch"
+                                Padding="12,8"
+                                CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xe9ba;" FontFamily="{StaticResource MaterialIcons}" Foreground="#dc2626" FontSize="18" VerticalAlignment="Center"/>
+                                <TextBlock Text="Выйти" Foreground="#dc2626" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
             </Grid>

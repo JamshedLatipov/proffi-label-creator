@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Services;
@@ -8,6 +9,8 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly ISettingsService  _settingsService;
     private readonly IWarehouseService _warehouseService;
+
+    public event EventHandler? LogoutRequested;
 
     public MainWindowViewModel(ISettingsService settingsService, IWarehouseService warehouseService)
     {
@@ -112,4 +115,8 @@ public partial class MainWindowViewModel : ViewModelBase
         if (CurrentContent is EditorViewModel editor)
             editor.SaveCommand.Execute(null);
     }
+
+    [RelayCommand]
+    private void Logout()
+        => LogoutRequested?.Invoke(this, EventArgs.Empty);
 }

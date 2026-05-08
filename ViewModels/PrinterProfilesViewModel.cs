@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabelStudio.Models;
@@ -73,11 +74,14 @@ public partial class PrinterProfilesViewModel : ViewModelBase
 
     private void LoadSystemPrinters()
     {
-        using var key = Registry.LocalMachine.OpenSubKey(
-            @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            using var key = Registry.LocalMachine?.OpenSubKey(
+                @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers");
 
-        foreach (var name in key?.GetSubKeyNames() ?? [])
-            SystemPrinters.Add(name);
+            foreach (var name in key?.GetSubKeyNames() ?? [])
+                SystemPrinters.Add(name);
+        }
 
         FormPrinterName = SystemPrinters.Count > 0 ? SystemPrinters[0] : null;
     }

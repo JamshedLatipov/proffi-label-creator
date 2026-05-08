@@ -24,9 +24,12 @@ public partial class App : Application
 
             var mainVm = new MainWindowViewModel(settingsService, warehouseService);
 
-            void ShowLogin()
+            void ShowLogin(string? message = null)
             {
                 var loginVm = new LoginViewModel(authService);
+
+                if (!string.IsNullOrEmpty(message))
+                    loginVm.ErrorMessage = message;
 
                 loginVm.SettingsRequested += (_, _) =>
                 {
@@ -41,13 +44,25 @@ public partial class App : Application
                     mainVm.AuthContent = null;
                 };
 
+                mainVm.IsAuthenticated = false;
                 mainVm.AuthContent = loginVm;
             }
+
+            mainVm.LogoutRequested += (_, _) =>
+            {
+                authService.Logout();
+                ShowLogin();
+            };
+
+            warehouseService.SessionExpired += (_, _) =>
+            {
+                authService.Logout();
+                ShowLogin("Сессия истекла. Пожалуйста, войдите снова.");
+            };
 
             // If no token saved, require login; otherwise go straight to main app.
             if (string.IsNullOrWhiteSpace(settingsService.AuthToken))
             {
-                mainVm.IsAuthenticated = false;
                 ShowLogin();
             }
             else

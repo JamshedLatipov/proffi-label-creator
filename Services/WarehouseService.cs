@@ -14,6 +14,8 @@ public sealed class WarehouseService : IWarehouseService
     private readonly HttpClient        _http           = new();
     private readonly ISettingsService  _settingsService;
 
+    public event EventHandler? SessionExpired;
+
     private static readonly JsonSerializerOptions _opts = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -60,6 +62,12 @@ public sealed class WarehouseService : IWarehouseService
 
             if (!response.IsSuccessStatusCode)
             {
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    Debug.WriteLine($"[WarehouseService] {(int)response.StatusCode} — session invalid or forbidden. Redirecting to login.");
+                    SessionExpired?.Invoke(this, EventArgs.Empty);
+                }
                 Debug.WriteLine("[WarehouseService] Non-success status — returning empty.");
                 return [];
             }
